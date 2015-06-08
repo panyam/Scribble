@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="7706" systemVersion="14E17e" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ScribblesVC">
+            <connections>
+                <outlet property="cancelButton" destination="Pdg-v7-oug" id="qgT-F7-dfh"/>
+                <outlet property="canvasView" destination="i5M-Pr-FkT" id="U8l-0c-fPk"/>
+                <outlet property="clearButton" destination="eUX-z3-3Yg" id="j5c-Nx-nAK"/>
+                <outlet property="colorPickerButton" destination="O7R-en-peo" id="JSX-Sg-WXz"/>
+                <outlet property="colorPickerView" destination="IxN-07-oe6" id="RjA-DT-bM3"/>
+                <outlet property="playButton" destination="2Rs-sG-DKp" id="Gba-Fa-Wd6"/>
+                <outlet property="sendButton" destination="Y7b-V8-JTV" id="T5M-ua-lu7"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT" customClass="CanvasView">
+            <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="O7R-en-peo">
+                    <rect key="frame" x="542" y="542" width="50" height="50"/>
+                    <color key="backgroundColor" red="0.0071543817930000003" green="0.0071543817930000003" blue="0.0071543817930000003" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="50" id="SSF-cV-tzf"/>
+                        <constraint firstAttribute="height" constant="50" id="lcI-V8-sRx"/>
+                    </constraints>
+                    <color key="tintColor" red="0.0071543817930000003" green="0.0071543817930000003" blue="0.0071543817930000003" alpha="1" colorSpace="calibratedRGB"/>
+                    <state key="normal">
+                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <connections>
+                        <action selector="colorPickerButtonClicked" destination="-1" eventType="touchUpInside" id="XuB-8Z-Gft"/>
+                    </connections>
+                </button>
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IxN-07-oe6" customClass="HRColorPickerView">
+                    <rect key="frame" x="8" y="70" width="584" height="464"/>
+                    <color key="backgroundColor" red="0.68296397109999996" green="0.90263463909999997" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Rs-sG-DKp">
+                    <rect key="frame" x="285" y="552" width="30" height="30"/>
+                    <state key="normal" title="Play">
+                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <connections>
+                        <action selector="playButtonClicked:" destination="-1" eventType="touchUpInside" id="xgx-GG-meX"/>
+                    </connections>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eUX-z3-3Yg">
+                    <rect key="frame" x="8" y="552" width="37" height="30"/>
+                    <state key="normal" title="Clear">
+                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <connections>
+                        <action selector="clearButtonClicked" destination="-1" eventType="touchUpInside" id="1uh-dD-66p"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="IxN-07-oe6" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="70" id="4ki-Fg-grs"/>
+                <constraint firstAttribute="bottom" secondItem="IxN-07-oe6" secondAttribute="bottom" constant="66" id="9MR-iY-mcM"/>
+                <constraint firstAttribute="bottom" secondItem="2Rs-sG-DKp" secondAttribute="bottom" constant="18" id="Ikn-7E-vd6"/>
+                <constraint firstItem="IxN-07-oe6" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="Odd-la-HPz"/>
+                <constraint firstItem="eUX-z3-3Yg" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="ZIO-49-QCU"/>
+                <constraint firstAttribute="centerX" secondItem="2Rs-sG-DKp" secondAttribute="centerX" id="bo4-CR-K08"/>
+                <constraint firstAttribute="trailing" secondItem="O7R-en-peo" secondAttribute="trailing" constant="8" id="pFx-jO-plO"/>
+                <constraint firstAttribute="bottom" secondItem="eUX-z3-3Yg" secondAttribute="bottom" constant="18" id="pQc-nF-UNI"/>
+                <constraint firstAttribute="bottom" secondItem="O7R-en-peo" secondAttribute="bottom" constant="8" id="qvD-ta-dyx"/>
+                <constraint firstAttribute="trailing" secondItem="IxN-07-oe6" secondAttribute="trailing" constant="8" id="ub8-0e-Rsx"/>
+            </constraints>
+            <point key="canvasLocation" x="256" y="124"/>
+        </view>
+        <barButtonItem title="Send" id="Y7b-V8-JTV">
+            <connections>
+                <action selector="barButtonItemClicked:" destination="-1" id="kbF-aG-4Qz"/>
+            </connections>
+        </barButtonItem>
+        <barButtonItem title="Back" id="Pdg-v7-oug">
+            <connections>
+                <action selector="barButtonItemClicked:" destination="-1" id="dPU-ky-G8j"/>
+            </connections>
+        </barButtonItem>
+    </objects>
+</document>
