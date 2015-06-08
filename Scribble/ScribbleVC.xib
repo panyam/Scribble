@@ -6,13 +6,13 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ScribbleVC">
             <connections>
-                <outlet property="cancelButton" destination="Pdg-v7-oug" id="qgT-F7-dfh"/>
+                <outlet property="acceptButton" destination="Y7b-V8-JTV" id="2by-UB-9Fh"/>
+                <outlet property="cancelButton" destination="Pdg-v7-oug" id="zAX-S0-NYr"/>
                 <outlet property="canvasView" destination="i5M-Pr-FkT" id="U8l-0c-fPk"/>
                 <outlet property="clearButton" destination="eUX-z3-3Yg" id="j5c-Nx-nAK"/>
                 <outlet property="colorPickerButton" destination="O7R-en-peo" id="JSX-Sg-WXz"/>
                 <outlet property="colorPickerView" destination="IxN-07-oe6" id="RjA-DT-bM3"/>
                 <outlet property="playButton" destination="2Rs-sG-DKp" id="Gba-Fa-Wd6"/>
-                <outlet property="sendButton" destination="Y7b-V8-JTV" id="T5M-ua-lu7"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -74,12 +74,12 @@
             </constraints>
             <point key="canvasLocation" x="256" y="124"/>
         </view>
-        <barButtonItem title="Send" id="Y7b-V8-JTV">
+        <barButtonItem title="Send" id="Y7b-V8-JTV" userLabel="Accept">
             <connections>
                 <action selector="barButtonItemClicked:" destination="-1" id="kbF-aG-4Qz"/>
             </connections>
         </barButtonItem>
-        <barButtonItem title="Back" id="Pdg-v7-oug">
+        <barButtonItem title="Back" id="Pdg-v7-oug" userLabel="Cancel">
             <connections>
                 <action selector="barButtonItemClicked:" destination="-1" id="dPU-ky-G8j"/>
             </connections>

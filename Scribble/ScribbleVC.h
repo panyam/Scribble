@@ -11,4 +11,7 @@
 
 @interface ScribbleVC : UIViewController
 
+@property (nonatomic, weak) IBOutlet UIBarButtonItem *cancelButton;
+@property (nonatomic, weak) IBOutlet UIBarButtonItem *acceptButton;
+
 @end

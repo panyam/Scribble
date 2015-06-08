@@ -17,8 +17,6 @@
 @property (nonatomic, weak) IBOutlet HRColorPickerView *colorPickerView;
 @property (nonatomic, weak) IBOutlet NSLayoutConstraint *colorPickerLeftConstraint;
 @property (nonatomic, weak) IBOutlet NSLayoutConstraint *colorPickerTopConstraint;
-@property (nonatomic, weak) IBOutlet UIBarButtonItem *cancelButton;
-@property (nonatomic, weak) IBOutlet UIBarButtonItem *sendButton;
 
 @end
 
@@ -29,7 +27,7 @@
     [super viewDidLoad];
     self.title = @"Scribble!";
     self.navigationItem.leftBarButtonItem = self.cancelButton;
-    self.navigationItem.rightBarButtonItem = self.sendButton;
+    self.navigationItem.rightBarButtonItem = self.acceptButton;
     [self.colorPickerView addTarget:self
                              action:@selector(colorPickerViewValueChanged:)
                    forControlEvents:UIControlEventValueChanged];
@@ -46,7 +44,7 @@
     if (sender == self.cancelButton)
     {
         [self dismissViewControllerAnimated:YES completion:nil];
-    } else if (sender == self.sendButton)
+    } else if (sender == self.acceptButton)
     {
     }
 }
