@@ -13,8 +13,8 @@
 		1082F8B61B26033E00268D04 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1082F8B41B26033E00268D04 /* LaunchScreen.xib */; };
 		1082F8C21B26033E00268D04 /* ScribbleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1082F8C11B26033E00268D04 /* ScribbleTests.m */; };
 		1082F8D21B26037900268D04 /* CanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1082F8CC1B26037900268D04 /* CanvasView.m */; };
-		1082F8D31B26037900268D04 /* ScribblesVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 1082F8CE1B26037900268D04 /* ScribblesVC.m */; };
-		1082F8D41B26037900268D04 /* ScribblesVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1082F8CF1B26037900268D04 /* ScribblesVC.xib */; };
+		1082F8D31B26037900268D04 /* ScribbleVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 1082F8CE1B26037900268D04 /* ScribbleVC.m */; };
+		1082F8D41B26037900268D04 /* ScribbleVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1082F8CF1B26037900268D04 /* ScribbleVC.xib */; };
 		1082F8D51B26037900268D04 /* Strokes.m in Sources */ = {isa = PBXBuildFile; fileRef = 1082F8D11B26037900268D04 /* Strokes.m */; };
 		4A5A4E23AA2870B881C3A5DC /* libPods-Scribble.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C88A5549712C32F3CECE321 /* libPods-Scribble.a */; };
 /* End PBXBuildFile section */
@@ -42,9 +42,9 @@
 		1082F8C11B26033E00268D04 /* ScribbleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScribbleTests.m; sourceTree = "<group>"; };
 		1082F8CB1B26037900268D04 /* CanvasView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CanvasView.h; sourceTree = "<group>"; };
 		1082F8CC1B26037900268D04 /* CanvasView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CanvasView.m; sourceTree = "<group>"; };
-		1082F8CD1B26037900268D04 /* ScribblesVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScribblesVC.h; sourceTree = "<group>"; };
-		1082F8CE1B26037900268D04 /* ScribblesVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScribblesVC.m; sourceTree = "<group>"; };
-		1082F8CF1B26037900268D04 /* ScribblesVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ScribblesVC.xib; sourceTree = "<group>"; };
+		1082F8CD1B26037900268D04 /* ScribbleVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScribbleVC.h; sourceTree = "<group>"; };
+		1082F8CE1B26037900268D04 /* ScribbleVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScribbleVC.m; sourceTree = "<group>"; };
+		1082F8CF1B26037900268D04 /* ScribbleVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ScribbleVC.xib; sourceTree = "<group>"; };
 		1082F8D01B26037900268D04 /* Strokes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Strokes.h; sourceTree = "<group>"; };
 		1082F8D11B26037900268D04 /* Strokes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Strokes.m; sourceTree = "<group>"; };
 		99B18EA8620A29E3F8293B47 /* Pods-Scribble.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scribble.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Scribble/Pods-Scribble.debug.xcconfig"; sourceTree = "<group>"; };
@@ -104,9 +104,9 @@
 			children = (
 				1082F8CB1B26037900268D04 /* CanvasView.h */,
 				1082F8CC1B26037900268D04 /* CanvasView.m */,
-				1082F8CD1B26037900268D04 /* ScribblesVC.h */,
-				1082F8CE1B26037900268D04 /* ScribblesVC.m */,
-				1082F8CF1B26037900268D04 /* ScribblesVC.xib */,
+				1082F8CD1B26037900268D04 /* ScribbleVC.h */,
+				1082F8CE1B26037900268D04 /* ScribbleVC.m */,
+				1082F8CF1B26037900268D04 /* ScribbleVC.xib */,
 				1082F8D01B26037900268D04 /* Strokes.h */,
 				1082F8D11B26037900268D04 /* Strokes.m */,
 				1082F8A91B26033E00268D04 /* AppDelegate.h */,
@@ -236,7 +236,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1082F8B61B26033E00268D04 /* LaunchScreen.xib in Resources */,
-				1082F8D41B26037900268D04 /* ScribblesVC.xib in Resources */,
+				1082F8D41B26037900268D04 /* ScribbleVC.xib in Resources */,
 				1082F8B31B26033E00268D04 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -291,7 +291,7 @@
 				1082F8AB1B26033E00268D04 /* AppDelegate.m in Sources */,
 				1082F8D21B26037900268D04 /* CanvasView.m in Sources */,
 				1082F8A81B26033E00268D04 /* main.m in Sources */,
-				1082F8D31B26037900268D04 /* ScribblesVC.m in Sources */,
+				1082F8D31B26037900268D04 /* ScribbleVC.m in Sources */,
 				1082F8D51B26037900268D04 /* Strokes.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

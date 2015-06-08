@@ -1,14 +1,14 @@
 //
-//  ScribblesVC.m
+//  ScribbleVC.m
 //  Salmon
 //
 //  Created by Sri Panyam on 5/06/2015.
 //  Copyright (c) 2015 osb. All rights reserved.
 //
 
-#import "ScribblesVC.h"
+#import "ScribbleVC.h"
 
-@interface ScribblesVC ()
+@interface ScribbleVC ()
 
 @property (nonatomic, weak) IBOutlet UIButton *playButton;
 @property (nonatomic, weak) IBOutlet UIButton *clearButton;
@@ -22,12 +22,12 @@
 
 @end
 
-@implementation ScribblesVC
+@implementation ScribbleVC
 
 -(void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = @"Scribbles!";
+    self.title = @"Scribble!";
     self.navigationItem.leftBarButtonItem = self.cancelButton;
     self.navigationItem.rightBarButtonItem = self.sendButton;
     [self.colorPickerView addTarget:self

@@ -7,24 +7,24 @@
 //
 
 #import "AppDelegate.h"
-#import "ScribblesVC.h"
+#import "ScribbleVC.h"
 
 @interface AppDelegate ()
 
-@property (nonatomic, strong) ScribblesVC *mainVC;
+@property (nonatomic, strong) ScribbleVC *mainVC;
 
 @end
 
 @implementation AppDelegate
 
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-
-    // Override point for customization after application launch.
-    self.window.rootViewController = [[ScribblesVC alloc] initWithNibName:@"ScribblesVC" bundle:[NSBundle mainBundle]];
-
-    return YES;
-}
+//
+//- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+//    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+//
+//    // Override point for customization after application launch.
+//    self.window.rootViewController = [[ScribbleVC alloc] initWithNibName:@"ScribbleVC" bundle:[NSBundle mainBundle]];
+//
+//    return YES;
+//}
 
 @end

@@ -1,5 +1,5 @@
 //
-//  ScribblesVC.h
+//  ScribbleVC.h
 //  Salmon
 //
 //  Created by Sri Panyam on 5/06/2015.
@@ -9,6 +9,6 @@
 #import "CanvasView.h"
 #import <Color-Picker-for-iOS/HRColorPickerView.h>
 
-@interface ScribblesVC : UIViewController
+@interface ScribbleVC : UIViewController
 
 @end
