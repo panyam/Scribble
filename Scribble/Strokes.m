@@ -18,7 +18,7 @@ StrokePoint StrokePointMake(CGPoint location, CGFloat createdAt)
 
 Stroke *StrokeNew()
 {
-    Stroke *out = malloc(sizeof(Stroke));
+    Stroke *out = calloc(1, sizeof(Stroke));
     StrokeInit(out);
     NSLog(@"Created Stroke: %p", out);
     return out;
@@ -88,14 +88,16 @@ void StrokeListClear(StrokeList *sl)
         LinkedListRelease(sl->strokes, ^(void *stroke, NSInteger index) {
             StrokeClear((Stroke *)stroke);
         });
+        sl->strokes = LinkedListNew();
         sl->currentStroke = NULL;
     }
 }
 
 void StrokeListRelease(StrokeList *sl)
 {
-    StrokeListClear(sl);
-    free(sl);
+	StrokeListClear(sl);
+	if (sl)
+		free(sl);
 }
 
 void StrokeListStartNewStroke(StrokeList *strokeList, UIColor *lineColor, CGFloat lineWidth)
