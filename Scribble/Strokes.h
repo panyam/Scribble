@@ -39,6 +39,7 @@ typedef struct Stroke {
 extern StrokePoint StrokePointMake(CGPoint location, CGFloat createdAt);
 
 extern Stroke *StrokeNew();
+extern void StrokeInit(Stroke *stroke);
 extern BOOL StrokeIsEmpty(Stroke *stroke);
 extern StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint location, CGFloat createdAt);
 extern void StrokeRelease(Stroke *head);

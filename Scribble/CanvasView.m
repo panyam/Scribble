@@ -144,8 +144,9 @@ CGPoint midPoint(CGPoint p1, CGPoint p2) {
     CGContextRef context = UIGraphicsGetCurrentContext();
     LinkedListIterate(currStrokeList->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
         Stroke *stroke = obj;
+        NSLog(@"Drawing Stroke: %p", stroke);
         CGContextSetLineWidth(context, stroke->lineWidth);
-        CGContextSetStrokeColorWithColor(context, stroke->lineColor);
+        CGContextSetStrokeColorWithColor(context, DEFAULT_LINE_COLOR.CGColor); //  stroke->lineColor);
         CGContextSetLineCap(context, kCGLineCapRound);
         CGContextAddPath(context, stroke->pathRef);
         CGContextStrokePath(context);

@@ -19,12 +19,36 @@ StrokePoint StrokePointMake(CGPoint location, CGFloat createdAt)
 Stroke *StrokeNew()
 {
     Stroke *out = malloc(sizeof(Stroke));
-    bzero(out, sizeof(Stroke));
-    out->points = LinkedListNew();
-    out->pathRef = CGPathCreateMutable();
-    out->lineWidth = DEFAULT_LINE_WIDTH;
-    out->lineColor = DEFAULT_LINE_COLOR.CGColor;
+    StrokeInit(out);
+    NSLog(@"Created Stroke: %p", out);
     return out;
+}
+
+void StrokeInit(Stroke *stroke)
+{
+    bzero(stroke, sizeof(Stroke));
+    stroke->points = LinkedListNew();
+    stroke->pathRef = CGPathCreateMutable();
+    stroke->lineWidth = DEFAULT_LINE_WIDTH;
+    stroke->lineColor = DEFAULT_LINE_COLOR.CGColor;
+}
+
+void StrokeClear(Stroke *stroke)
+{
+    if (stroke)
+    {
+        LinkedListRelease(stroke->points, nil);
+        stroke->points = 0;
+        CGPathRelease(stroke->pathRef);
+        stroke->pathRef = 0;
+    }
+}
+
+void StrokeRelease(Stroke *stroke)
+{
+    StrokeClear(stroke);
+    if (stroke)
+        free(stroke);
 }
 
 StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint location, CGFloat createdAt)
@@ -40,16 +64,6 @@ BOOL StrokeIsEmpty(Stroke *stroke)
     return stroke == NULL || stroke->points == NULL || LinkedListHead(stroke->points) == NULL;
 }
 
-void StrokeRelease(Stroke *stroke)
-{
-    if (stroke)
-    {
-        LinkedListRelease(stroke->points, NULL);
-        CGPathRelease(stroke->pathRef);
-        free(stroke);
-    }
-}
-
 void StrokeSetLineColor(Stroke *stroke, CGColorRef newColor)
 {
     if (stroke && stroke->lineColor != newColor)
@@ -57,17 +71,6 @@ void StrokeSetLineColor(Stroke *stroke, CGColorRef newColor)
         CGColorRelease(stroke->lineColor);
         stroke->lineColor = newColor;
         CGColorRetain(newColor);
-    }
-}
-
-void StrokeClear(Stroke *stroke)
-{
-    if (stroke)
-    {
-        LinkedListRelease(stroke->points, nil);
-        stroke->points = 0;
-        CGPathRelease(stroke->pathRef);
-        stroke->pathRef = 0;
     }
 }
 
@@ -95,19 +98,19 @@ void StrokeListRelease(StrokeList *sl)
     free(sl);
 }
 
-void StrokeListStartNewStroke(StrokeList *strokes, UIColor *lineColor, CGFloat lineWidth)
+void StrokeListStartNewStroke(StrokeList *strokeList, UIColor *lineColor, CGFloat lineWidth)
 {
     if (lineWidth <= 0)
         lineWidth = DEFAULT_LINE_WIDTH;
     if (lineColor == nil)
         lineColor = DEFAULT_LINE_COLOR;
     // only add a new stroke if the current stroke is *not* empty
-    if (strokes->currentStroke == NULL || !StrokeIsEmpty(strokes->currentStroke))
+    if (strokeList->currentStroke == NULL || !StrokeIsEmpty(strokeList->currentStroke))
     {
-        strokes->currentStroke = LinkedListAddObject(strokes->strokes, sizeof(Stroke));
-        strokes->currentStroke->points = LinkedListNew();
-        strokes->currentStroke->pathRef = CGPathCreateMutable();
+        strokeList->currentStroke = LinkedListAddObject(strokeList->strokes, sizeof(Stroke));
+        strokeList->currentStroke->points = LinkedListNew();
+        strokeList->currentStroke->pathRef = CGPathCreateMutable();
     }
-    strokes->currentStroke->lineWidth = lineWidth;
-    StrokeSetLineColor(strokes->currentStroke, lineColor.CGColor);
+    strokeList->currentStroke->lineWidth = lineWidth;
+    StrokeSetLineColor(strokeList->currentStroke, lineColor.CGColor);
 }

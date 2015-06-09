@@ -17,14 +17,19 @@
 
 @implementation AppDelegate
 
-//
-//- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-//    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-//
-//    // Override point for customization after application launch.
-//    self.window.rootViewController = [[ScribbleVC alloc] initWithNibName:@"ScribbleVC" bundle:[NSBundle mainBundle]];
-//
-//    return YES;
-//}
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *) launchOptions {
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+    self.window = [[UIWindow alloc] initWithFrame:screenBounds];
+
+    // Override point for customization after application launch.
+    self.mainVC = [[ScribbleVC alloc] initWithNibName:nil bundle:nil];
+    self.window.rootViewController = self.mainVC;
+    [self.window addSubview:self.mainVC.view];
+    self.mainVC.view.frame = screenBounds;
+    [self.window makeKeyAndVisible];
+
+    return YES;
+}
 
 @end
