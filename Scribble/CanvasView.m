@@ -81,6 +81,7 @@
 -(void)clear {
     [self clearPlayback];
     [self clearRecording];
+    [self setNeedsDisplay];
 }
 
 -(void)removeFromSuperview
@@ -178,6 +179,9 @@
 
 -(BOOL)advancePlayer
 {
+    if (recordedStrokeList == NULL)
+        return NO;
+
     NSLog(@"Incrementing Position");
     if (strokeIterator == NULL)
         strokeIterator = LinkedListIteratorNew(recordedStrokeList->strokes);
