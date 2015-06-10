@@ -50,7 +50,6 @@ extern void StrokeRelease(Stroke *head);
 extern void StrokeSetLineColor(Stroke *stroke, CGColorRef newColor);
 extern void StrokeClear(Stroke *stroke);
 
-
 typedef struct StrokeList {
     LinkedList *strokes;
     Stroke *currentStroke;
@@ -66,18 +65,20 @@ extern void StrokeListDraw(StrokeList *list, CGContextRef context, CGFloat alpha
  * Serialize a stroke list into a given data buffer.
  */
 extern void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef);
+extern void StrokeSerialize(Stroke *stroke, CFMutableDataRef dataRef);
+extern void StrokePointSerialize(StrokePoint *point, CFMutableDataRef dataRef);
 
 /**
- * Deserialize a stroke list from a CFData object and returns any possible errors
- * in deserializaiton.
- * If an error is returned it must be CFRelease-ed after it is done with.
+ * Deserialize a stroke list from a list object.
  */
-extern CFErrorRef StrokeListDeserialize(CFDataRef data, StrokeList *strokeList);
-
-extern void StrokeSerialize(Stroke *stroke, CFMutableDataRef dataRef);
-extern CFErrorRef StrokeDeserialize(CFDataRef data, Stroke *stroke);
-
-extern void StrokePointSerialize(StrokePoint *point, CFMutableDataRef dataRef);
-extern CFErrorRef StrokePointDeserialize(CFDataRef data, StrokePoint *point);
+extern CFErrorRef StrokeListDeserialize(CFArrayRef array, StrokeList *strokeList);
+/**
+ * Deserialize a stroke from a dictionary of its attribute values.
+ */
+extern CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke);
+/**
+ * Deserialize a stroke point from a dictionary of its attribute values.
+ */
+extern CFErrorRef StrokePointDeserialize(CFDictionaryRef dict, StrokePoint *point);
 
 #endif

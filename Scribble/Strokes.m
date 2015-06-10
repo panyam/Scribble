@@ -316,13 +316,26 @@ void StrokePointSerialize(StrokePoint *point, CFMutableDataRef dataRef)
    CFDataAppendString(dataRef, "}");
 }
 
+/**
+ * Deserialize a stroke list from a list object.
+ */
+CFErrorRef StrokeListDeserialize(CFArrayRef array, StrokeList *strokeList)
+{
+    return NULL;
+}
 
 /**
- * Deserialize a stroke list from a CFData object and returns any possible errors
- * in deserializaiton.
- * If an error is returned it must be CFRelease-ed after it is done with.
+ * Deserialize a stroke from a dictionary of its attribute values.
  */
-CFErrorRef StrokeListDeserialize(CFDataRef data, StrokeList *strokeList)
+CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke)
+{
+    return NULL;
+}
+
+/**
+ * Deserialize a stroke point from a dictionary of its attribute values.
+ */
+CFErrorRef StrokePointDeserialize(CFDictionaryRef dict, StrokePoint *point)
 {
     return NULL;
 }
