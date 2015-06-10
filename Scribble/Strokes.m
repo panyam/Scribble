@@ -217,3 +217,112 @@ void StrokeListDraw(StrokeList *strokeList, CGContextRef context, CGFloat alpha)
         CGContextStrokePath(context);
     });
 }
+
+void CFDataAppendString(CFMutableDataRef dataRef, const char *str)
+{
+    size_t len = strlen(str);
+    CFDataAppendBytes(dataRef, (const UInt8 *)str, len);
+}
+
+void CFDataAppendInteger(CFMutableDataRef dataRef, NSInteger value)
+{
+    char buffer[32];
+    sprintf(buffer, "%ld", (long)value);
+    CFDataAppendString(dataRef, buffer);
+}
+
+void CFDataAppendFloat(CFMutableDataRef dataRef, CGFloat value, int numPlaces)
+{
+    char format[32];
+    sprintf(format, "%%.%df", numPlaces);
+    char buffer[32];
+    sprintf(buffer, format, (long)value);
+    CFDataAppendString(dataRef, buffer);
+}
+
+/**
+ * Serialize a stroke list and return the data ref.
+ * The data ref object must be CFRelease-ed after it is used.
+ * TODO: send in a "protocol" object so we can do any format instead of hardcoding one here
+ */
+void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef)
+{
+    if (strokeList == NULL || dataRef == NULL)
+        return ;
+
+    CFDataAppendString(dataRef, "[");
+    LinkedListIterate(strokeList->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
+        Stroke *stroke = obj;
+        if (idx > 0)
+        {
+            CFDataAppendString(dataRef, ",");
+        }
+        StrokeSerialize(stroke, dataRef);
+    });
+    CFDataAppendString(dataRef, "]");
+}
+
+void StrokeSerialize(Stroke *stroke, CFMutableDataRef dataRef)
+{
+    CFDataAppendString(dataRef, "{");
+
+    CFDataAppendString(dataRef, "\"LineWidth\":");
+    CFDataAppendFloat(dataRef, stroke->lineWidth, 2);
+
+    CFDataAppendString(dataRef, ",\"LineColor\":");
+    CFDataAppendString(dataRef, "[");
+    size_t numComponents = CGColorGetNumberOfComponents(stroke->lineColor);
+    const CGFloat *colorComps = CGColorGetComponents(stroke->lineColor);
+    for (int i = 0;i < numComponents;i++)
+    {
+        if (i > 0)
+            CFDataAppendString(dataRef, ",");
+        CFDataAppendFloat(dataRef, colorComps[i], 3);
+    }
+    CFDataAppendString(dataRef, "]");
+
+    // Write the bounding box
+    CFDataAppendString(dataRef, ",\"MinX\":");
+    CFDataAppendFloat(dataRef, stroke->minX, 2);
+    CFDataAppendString(dataRef, ",\"MinY\":");
+    CFDataAppendFloat(dataRef, stroke->minY, 2);
+    CFDataAppendString(dataRef, ",\"MaxX\":");
+    CFDataAppendFloat(dataRef, stroke->maxX, 2);
+    CFDataAppendString(dataRef, ",\"MaxY\":");
+    CFDataAppendFloat(dataRef, stroke->maxY, 2);
+
+    // Write the points for each stroke now
+    CFDataAppendString(dataRef, ",\"Points\":");
+    CFDataAppendString(dataRef, "[");
+    LinkedListIterate(stroke->points, ^(void *obj, NSUInteger idx, BOOL *stop) {
+        StrokePoint *point = obj;
+        if (idx > 0)
+            CFDataAppendString(dataRef, ",");
+        StrokePointSerialize(point, dataRef);
+    });
+    CFDataAppendString(dataRef, "]");
+    CFDataAppendString(dataRef, "}");
+}
+
+void StrokePointSerialize(StrokePoint *point, CFMutableDataRef dataRef)
+{
+    CFDataAppendString(dataRef, "{");
+    CFDataAppendString(dataRef, "\"X\":");
+    CFDataAppendFloat(dataRef, point->location.x, 2);
+    CFDataAppendString(dataRef, ",\"Y\":");
+    CFDataAppendFloat(dataRef, point->location.y, 2);
+    if (point->startNewSubpath)
+        CFDataAppendString(dataRef, ",\"StartsNew\":true");
+   CFDataAppendString(dataRef, "}");
+}
+
+
+/**
+ * Deserialize a stroke list from a CFData object and returns any possible errors
+ * in deserializaiton.
+ * If an error is returned it must be CFRelease-ed after it is done with.
+ */
+CFErrorRef StrokeListDeserialize(CFDataRef data, StrokeList *strokeList)
+{
+    return NULL;
+}

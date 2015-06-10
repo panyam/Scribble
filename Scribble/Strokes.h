@@ -62,4 +62,22 @@ extern void StrokeListRelease(StrokeList *strokes);
 extern void StrokeListStartNewStroke(StrokeList *strokeList, CGColorRef lineColor, CGFloat lineWidth);
 extern void StrokeListDraw(StrokeList *list, CGContextRef context, CGFloat alpha);
 
+/**
+ * Serialize a stroke list into a given data buffer.
+ */
+extern void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef);
+
+/**
+ * Deserialize a stroke list from a CFData object and returns any possible errors
+ * in deserializaiton.
+ * If an error is returned it must be CFRelease-ed after it is done with.
+ */
+extern CFErrorRef StrokeListDeserialize(CFDataRef data, StrokeList *strokeList);
+
+extern void StrokeSerialize(Stroke *stroke, CFMutableDataRef dataRef);
+extern CFErrorRef StrokeDeserialize(CFDataRef data, Stroke *stroke);
+
+extern void StrokePointSerialize(StrokePoint *point, CFMutableDataRef dataRef);
+extern CFErrorRef StrokePointDeserialize(CFDataRef data, StrokePoint *point);
+
 #endif
