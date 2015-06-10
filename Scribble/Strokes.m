@@ -8,6 +8,10 @@
 
 #import "Strokes.h"
 
+CGPoint midPoint(CGPoint p1, CGPoint p2) {
+    return CGPointMake((p1.x + p2.x) * 0.5, (p1.y + p2.y) * 0.5);
+}
+
 StrokePoint StrokePointMake(CGPoint location, CGFloat createdAt)
 {
     StrokePoint out;
@@ -51,11 +55,69 @@ void StrokeRelease(Stroke *stroke)
         free(stroke);
 }
 
-StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint location, CGFloat createdAt)
+StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint point, CGFloat createdAt, BOOL newSubpath)
 {
+    // only add if new point or if distance is at least certain distance away
+    CGPoint currentPoint = point;
+    CGPoint previousPoint = point;
+    CGPoint previousPreviousPoint = point;
+    if (!StrokeIsEmpty(stroke) && !newSubpath)
+    {
+        StrokePoint *lastPoint = LinkedListNodeData(LinkedListTail(stroke->points));
+
+        // if the finger has moved less than the min dist ...
+        CGFloat dx = point.x - lastPoint->location.x;
+        CGFloat dy = point.y - lastPoint->location.y;
+
+        if ((dx * dx + dy * dy) < kPointMinDistanceSquared) {
+            // ... then ignore this movement
+            return NULL;
+        }
+    }
+
+    // get the last 2 points that we have been adding so far
+    if (!newSubpath)
+    {
+        LinkedListNode *previousNode = LinkedListTail(stroke->points);
+        if (previousNode)
+        {
+            StrokePoint *prevStrokePoint = LinkedListNodeData(previousNode);
+            previousPreviousPoint = previousPoint = prevStrokePoint->location;
+
+            if (!prevStrokePoint->startNewSubpath)
+            {
+                LinkedListNode *previousPreviousNode = LinkedListNodePrev(previousNode);
+                if (previousPreviousNode)
+                {
+                    prevStrokePoint = LinkedListNodeData(previousPreviousNode);
+                    previousPreviousPoint = prevStrokePoint->location;
+                }
+            }
+        }
+    }
+
+    // update points: previousPrevious -> mid1 -> previous -> mid2 -> current
+    CGPoint mid1 = midPoint(previousPoint, previousPreviousPoint);
+    CGPoint mid2 = midPoint(currentPoint, previousPoint);
+
     StrokePoint *newPoint = LinkedListAddObject(stroke->points, sizeof(StrokePoint));
-    newPoint->location = location;
+    newPoint->location = point;
     newPoint->createdAt = createdAt;
+    newPoint->startNewSubpath = newSubpath;
+
+    // to represent the finger movement, create a new path segment,
+    // a quadratic bezier path from mid1 to mid2, using previous as a control point
+    CGMutablePathRef subpath = CGPathCreateMutable();
+    CGPathMoveToPoint(subpath, NULL, mid1.x, mid1.y);
+    CGPathAddQuadCurveToPoint(subpath, NULL, previousPoint.x, previousPoint.y, mid2.x, mid2.y);
+
+    // compute the rect containing the new segment plus padding for drawn line
+//    CGRect bounds = CGPathGetBoundingBox(subpath);
+
+    // append the quad curve to the accumulated path so far.
+    CGPathAddPath(stroke->pathRef, NULL, subpath);
+    CGPathRelease(subpath);
+
     return newPoint;
 }
 

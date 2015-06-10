@@ -15,6 +15,9 @@
 #define DEFAULT_LINE_WIDTH  5.0
 #define DEFAULT_LINE_COLOR  UIColor.blackColor
 
+static const CGFloat kPointMinDistance = 5.0f;
+static const CGFloat kPointMinDistanceSquared = kPointMinDistance * kPointMinDistance;
+
 
 /**
  * Each stroke point contains the location where the a point was registered
@@ -23,7 +26,7 @@
 typedef struct StrokePoint {
     CGPoint location;
     CGFloat createdAt;
-    BOOL restartsStroke;
+    BOOL startNewSubpath;
 } StrokePoint;
 
 /**
@@ -34,6 +37,7 @@ typedef struct Stroke {
     CGMutablePathRef pathRef;
     CGColorRef lineColor;
     CGFloat lineWidth;
+    CGRect boundingBox;
 } Stroke;
 
 extern StrokePoint StrokePointMake(CGPoint location, CGFloat createdAt);
@@ -41,7 +45,7 @@ extern StrokePoint StrokePointMake(CGPoint location, CGFloat createdAt);
 extern Stroke *StrokeNew();
 extern void StrokeInit(Stroke *stroke);
 extern BOOL StrokeIsEmpty(Stroke *stroke);
-extern StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint location, CGFloat createdAt);
+extern StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint location, CGFloat createdAt, BOOL newSubpath);
 extern void StrokeRelease(Stroke *head);
 extern void StrokeSetLineColor(Stroke *stroke, CGColorRef newColor);
 extern void StrokeClear(Stroke *stroke);

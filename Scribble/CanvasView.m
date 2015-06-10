@@ -10,17 +10,6 @@
 #import "Strokes.h"
 #import <QuartzCore/QuartzCore.h>
 
-#pragma mark Private Helper function
-
-static const CGFloat kPointMinDistance = 5.0f;
-static const CGFloat kPointMinDistanceSquared = kPointMinDistance * kPointMinDistance;
-
-#pragma mark private Helper function
-
-CGPoint midPoint(CGPoint p1, CGPoint p2) {
-    return CGPointMake((p1.x + p2.x) * 0.5, (p1.y + p2.y) * 0.5);
-}
-
 @interface CanvasView()
 
 @property (nonatomic, strong) UIColor *currLineColor;
@@ -35,11 +24,10 @@ CGPoint midPoint(CGPoint p1, CGPoint p2) {
     CGPoint previousPreviousPoint;
     StrokeList *currStrokeList;
 
-    BOOL inPlaybackMode;            // Whether we are in playback mode
-    BOOL playbackPaused;            // If in playback mode, whether we are paused
-    StrokeList *playbackStrokeList;
-    LinkedListNode *currPlaybackStrokeNode;     // The current stroke which is being played back
-    LinkedListNode *currPlaybackPointNode;      // The current point within the stroke being played back
+    BOOL inPlaybackMode;                // Whether we are in playback mode
+    BOOL playbackPaused;                // If in playback mode, whether we are paused
+    LinkedListIterator *strokeIterator;
+    LinkedListIterator *pointIterator;
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
@@ -73,13 +61,18 @@ CGPoint midPoint(CGPoint p1, CGPoint p2) {
 }
 
 -(void)dealloc {
+    LinkedListIteratorRelease(strokeIterator);
+    LinkedListIteratorRelease(pointIterator);
     StrokeListRelease(currStrokeList);
-    StrokeListRelease(playbackStrokeList);
 }
 
 -(void)clear {
+    LinkedListIteratorRelease(strokeIterator);
+    LinkedListIteratorRelease(pointIterator);
+    strokeIterator = pointIterator = NULL;
+
     StrokeListClear(currStrokeList);
-    StrokeListClear(playbackStrokeList);
+
     [self startNewStrokeWithColor:self.currLineColor withWidth:self.currLineWidth];
 }
 
@@ -95,9 +88,9 @@ CGPoint midPoint(CGPoint p1, CGPoint p2) {
     self.playerTimer = nil;
     if (restart)
     {
-        currPlaybackStrokeNode = LinkedListHead(currStrokeList->strokes);
-        Stroke *currPlaybackStroke = (Stroke *)LinkedListNodeData(currPlaybackStrokeNode);
-        currPlaybackPointNode = LinkedListHead(currPlaybackStroke->points);
+        LinkedListIteratorRelease(strokeIterator);
+        LinkedListIteratorRelease(pointIterator);
+        strokeIterator = pointIterator = NULL;
     }
     inPlaybackMode = YES;
     self.playerTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
@@ -114,7 +107,7 @@ CGPoint midPoint(CGPoint p1, CGPoint p2) {
     if (finish)
     {
         inPlaybackMode = NO;
-        StrokeListClear(playbackStrokeList);
+//        StrokeListClear(playbackStrokeList);
     } else {
         playbackPaused = YES;
     }
@@ -144,9 +137,8 @@ CGPoint midPoint(CGPoint p1, CGPoint p2) {
     CGContextRef context = UIGraphicsGetCurrentContext();
     LinkedListIterate(currStrokeList->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
         Stroke *stroke = obj;
-        NSLog(@"Drawing Stroke: %p", stroke);
         CGContextSetLineWidth(context, stroke->lineWidth);
-        CGContextSetStrokeColorWithColor(context, DEFAULT_LINE_COLOR.CGColor); //  stroke->lineColor);
+        CGContextSetStrokeColorWithColor(context, stroke->lineColor);
         CGContextSetLineCap(context, kCGLineCapRound);
         CGContextAddPath(context, stroke->pathRef);
         CGContextStrokePath(context);
@@ -165,9 +157,11 @@ CGPoint midPoint(CGPoint p1, CGPoint p2) {
     previousPreviousPoint = [touch previousLocationInView:self];
     currentPoint = [touch locationInView:self];
 
-    StrokeAddPoint(currStrokeList->currentStroke, currentPoint, touch.timestamp);
-
-    // call touchesMoved:withEvent:, to possibly draw on zero movement
+    NSLog(@"Touch Began: PrevPrev: (%f, %f), Prev: (%f, %f), Curr: (%f, %f)", previousPreviousPoint.x
+          , previousPreviousPoint.y, previousPoint.x, previousPoint.y, currentPoint.x, currentPoint.y);
+    StrokeAddPoint(currStrokeList->currentStroke, currentPoint, touch.timestamp, YES);
+//
+//    // call touchesMoved:withEvent:, to possibly draw on zero movement
     [self touchesMoved:touches withEvent:event];
 }
 
@@ -177,73 +171,63 @@ CGPoint midPoint(CGPoint p1, CGPoint p2) {
     UITouch *touch = [touches anyObject];
 
     CGPoint point = [touch locationInView:self];
-
-    // if the finger has moved less than the min dist ...
-    CGFloat dx = point.x - currentPoint.x;
-    CGFloat dy = point.y - currentPoint.y;
-
-    if ((dx * dx + dy * dy) < kPointMinDistanceSquared) {
-        // ... then ignore this movement
-        return;
-    }
-
-    // add the point to the current stroke
-    StrokeAddPoint(currStrokeList->currentStroke, point, touch.timestamp);
-
-    // update points: previousPrevious -> mid1 -> previous -> mid2 -> current
     previousPreviousPoint = previousPoint;
     previousPoint = [touch previousLocationInView:self];
     currentPoint = [touch locationInView:self];
 
-    CGPoint mid1 = midPoint(previousPoint, previousPreviousPoint);
-    CGPoint mid2 = midPoint(currentPoint, previousPoint);
-
-    // to represent the finger movement, create a new path segment,
-    // a quadratic bezier path from mid1 to mid2, using previous as a control point
-    CGMutablePathRef subpath = CGPathCreateMutable();
-    CGPathMoveToPoint(subpath, NULL, mid1.x, mid1.y);
-    CGPathAddQuadCurveToPoint(subpath, NULL, previousPoint.x, previousPoint.y, mid2.x, mid2.y);
-
-    // compute the rect containing the new segment plus padding for drawn line
-    CGRect bounds = CGPathGetBoundingBox(subpath);
-    CGRect drawBox = CGRectInset(bounds,
-                                 -2.0 * currStrokeList->currentStroke->lineWidth,
-                                 -2.0 * currStrokeList->currentStroke->lineWidth);
-
-    // append the quad curve to the accumulated path so far.
-    CGPathAddPath(currStrokeList->currentStroke->pathRef, NULL, subpath);
-    CGPathRelease(subpath);
+//    CGPoint mid1 = midPoint(previousPoint, previousPreviousPoint);
+//    CGPoint mid2 = midPoint(currentPoint, previousPoint);
+    // add the point to the current stroke
+    StrokeAddPoint(currStrokeList->currentStroke, point, touch.timestamp, NO);
     
-    [self setNeedsDisplayInRect:drawBox];
+    [self setNeedsDisplay];
+//    [self setNeedsDisplayInRect:drawBox];
 }
 
 -(void)incrementPlaybackPosition
 {
     NSLog(@"Incrementing Position");
-    if (currPlaybackStrokeNode == NULL)
-    {
-        currPlaybackStrokeNode = LinkedListHead(currStrokeList->strokes);
-    } else {
-        currPlaybackPointNode = LinkedListNodeNext(currPlaybackPointNode);
-        if (currPlaybackPointNode != NULL)
-        {
-            [self setNeedsDisplay];
-            return ;
-        }
-
-        // next point is NULL so start the next path
-        currPlaybackStrokeNode = LinkedListNodeNext(currPlaybackStrokeNode);
-        if (currPlaybackStrokeNode == NULL)
-        {
-            // we have reached the end so stop
-            [self stopPlaying:YES];
-            return ;
-        }
-    }
-
-    // Start of the current stroke/path so set the head as the first point
-    Stroke *currPlaybackStroke = (Stroke *)LinkedListNodeData(currPlaybackStrokeNode);
-    currPlaybackPointNode = LinkedListHead(currPlaybackStroke->points);
+//    if (currPlaybackStrokeNode == NULL)
+//    {
+//        currPlaybackStrokeNode = LinkedListHead(currStrokeList->strokes);
+//    }
+//
+//    if (currPlaybackStrokeNode == NULL)
+//    {
+//        return ;
+//    }
+//
+//    if (currPlaybackStrokeNode == NULL)
+//    {
+//        currPlaybackStrokeNode = LinkedListHead(currPlaybackStrokeNode);
+//    }
+//
+//    if (currPlaybackStrokeNode == NULL)
+//    {
+//        return ;
+//    }
+//
+//    else {
+//        currPlaybackPointNode = LinkedListNodeNext(currPlaybackPointNode);
+//        if (currPlaybackPointNode != NULL)
+//        {
+//            [self setNeedsDisplay];
+//            return ;
+//        }
+//
+//        // next point is NULL so start the next path
+//        currPlaybackStrokeNode = LinkedListNodeNext(currPlaybackStrokeNode);
+//        if (currPlaybackStrokeNode == NULL)
+//        {
+//            // we have reached the end so stop
+//            [self stopPlaying:YES];
+//            return ;
+//        }
+//    }
+//
+//    // Start of the current stroke/path so set the head as the first point
+//    Stroke *currPlaybackStroke = (Stroke *)LinkedListNodeData(currPlaybackStrokeNode);
+//    currPlaybackPointNode = LinkedListHead(currPlaybackStroke->points);
 
     // TODO: add the point to the accumulating path
 
