@@ -162,12 +162,12 @@ void StrokeListRelease(StrokeList *sl)
 		free(sl);
 }
 
-void StrokeListStartNewStroke(StrokeList *strokeList, UIColor *lineColor, CGFloat lineWidth)
+void StrokeListStartNewStroke(StrokeList *strokeList, CGColorRef lineColor, CGFloat lineWidth)
 {
     if (lineWidth <= 0)
         lineWidth = DEFAULT_LINE_WIDTH;
-    if (lineColor == nil)
-        lineColor = DEFAULT_LINE_COLOR;
+    if (lineColor == 0)
+        lineColor = DEFAULT_LINE_COLOR.CGColor;
     // only add a new stroke if the current stroke is *not* empty
     if (strokeList->currentStroke == NULL || !StrokeIsEmpty(strokeList->currentStroke))
     {
@@ -176,7 +176,7 @@ void StrokeListStartNewStroke(StrokeList *strokeList, UIColor *lineColor, CGFloa
         strokeList->currentStroke->pathRef = CGPathCreateMutable();
     }
     strokeList->currentStroke->lineWidth = lineWidth;
-    StrokeSetLineColor(strokeList->currentStroke, lineColor.CGColor);
+    StrokeSetLineColor(strokeList->currentStroke, lineColor);
 }
 
 void StrokeListDraw(StrokeList *strokeList, CGContextRef context, CGFloat alpha)

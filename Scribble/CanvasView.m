@@ -54,24 +54,33 @@
 {
     self.currLineColor = DEFAULT_LINE_COLOR;
     self.currLineWidth = DEFAULT_LINE_WIDTH;
-    recordedStrokeList = StrokeListNew();
+    recordedStrokeList = NULL;
     [self clear];
 }
 
 -(void)dealloc {
-    LinkedListIteratorRelease(strokeIterator);
-    LinkedListIteratorRelease(pointIterator);
-    StrokeListRelease(recordedStrokeList);
+    [self clearPlayback];
+    [self clearRecording];
 }
 
--(void)clear {
+-(void)clearRecording
+{
+    StrokeListRelease(recordedStrokeList);
+    recordedStrokeList = NULL;
+}
+
+-(void)clearPlayback
+{
     LinkedListIteratorRelease(strokeIterator);
     LinkedListIteratorRelease(pointIterator);
     strokeIterator = pointIterator = NULL;
+    StrokeListRelease(playbackStrokeList);
+    playbackStrokeList = NULL;
+}
 
-    StrokeListClear(recordedStrokeList);
-
-    [self startNewStrokeWithColor:self.currLineColor withWidth:self.currLineWidth];
+-(void)clear {
+    [self clearPlayback];
+    [self clearRecording];
 }
 
 -(void)removeFromSuperview
@@ -86,14 +95,12 @@
     self.playerTimer = nil;
     if (restart)
     {
-        LinkedListIteratorRelease(strokeIterator);
-        LinkedListIteratorRelease(pointIterator);
-        strokeIterator = pointIterator = NULL;
+        [self clearPlayback];
     }
     inPlaybackMode = YES;
-    self.playerTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
+    self.playerTimer = [NSTimer scheduledTimerWithTimeInterval:0.02
                                                         target:self
-                                                      selector:@selector(incrementPlaybackPosition)
+                                                      selector:@selector(advancePlayer)
                                                       userInfo:nil
                                                        repeats:YES];
 }
@@ -105,7 +112,7 @@
     if (finish)
     {
         inPlaybackMode = NO;
-//        StrokeListClear(playbackStrokeList);
+        [self clearPlayback];
     } else {
         playbackPaused = YES;
     }
@@ -122,7 +129,9 @@
         self.currLineColor = DEFAULT_LINE_COLOR;
     if (lineColor != nil)
         self.currLineColor = lineColor;
-    StrokeListStartNewStroke(recordedStrokeList, self.currLineColor, self.currLineWidth);
+    if (recordedStrokeList == NULL)
+        recordedStrokeList = StrokeListNew();
+    StrokeListStartNewStroke(recordedStrokeList, self.currLineColor.CGColor, self.currLineWidth);
     [self setNeedsDisplay];
 }
 
@@ -145,6 +154,10 @@
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     if (!inPlaybackMode)
     {
+        if (recordedStrokeList == NULL)
+        {
+            [self startNewStrokeWithColor:self.currLineColor withWidth:self.currLineWidth];
+        }
         UITouch *touch = touches.anyObject;
         CGPoint point  = [touch locationInView:self];
         StrokeAddPoint(recordedStrokeList->currentStroke, point, touch.timestamp, YES);
@@ -163,54 +176,52 @@
     }
 }
 
--(void)incrementPlaybackPosition
+-(BOOL)advancePlayer
 {
     NSLog(@"Incrementing Position");
-//    if (currPlaybackStrokeNode == NULL)
-//    {
-//        currPlaybackStrokeNode = LinkedListHead(recordedStrokeList->strokes);
-//    }
-//
-//    if (currPlaybackStrokeNode == NULL)
-//    {
-//        return ;
-//    }
-//
-//    if (currPlaybackStrokeNode == NULL)
-//    {
-//        currPlaybackStrokeNode = LinkedListHead(currPlaybackStrokeNode);
-//    }
-//
-//    if (currPlaybackStrokeNode == NULL)
-//    {
-//        return ;
-//    }
-//
-//    else {
-//        currPlaybackPointNode = LinkedListNodeNext(currPlaybackPointNode);
-//        if (currPlaybackPointNode != NULL)
-//        {
-//            [self setNeedsDisplay];
-//            return ;
-//        }
-//
-//        // next point is NULL so start the next path
-//        currPlaybackStrokeNode = LinkedListNodeNext(currPlaybackStrokeNode);
-//        if (currPlaybackStrokeNode == NULL)
-//        {
-//            // we have reached the end so stop
-//            [self stopPlaying:YES];
-//            return ;
-//        }
-//    }
-//
-//    // Start of the current stroke/path so set the head as the first point
-//    Stroke *currPlaybackStroke = (Stroke *)LinkedListNodeData(currPlaybackStrokeNode);
-//    currPlaybackPointNode = LinkedListHead(currPlaybackStroke->points);
+    if (strokeIterator == NULL)
+        strokeIterator = LinkedListIteratorNew(recordedStrokeList->strokes);
+    if (strokeIterator == NULL)
+        return NO;
 
-    // TODO: add the point to the accumulating path
+    Stroke *currStroke = (Stroke *)LinkedListIteratorValue(strokeIterator);
+    if (pointIterator == NULL)
+        pointIterator = LinkedListIteratorNew(currStroke->points);
+    if (pointIterator == NULL)
+        return NO;
+
+    if (playbackStrokeList == NULL)
+    {
+        playbackStrokeList = StrokeListNew();
+        StrokeListStartNewStroke(playbackStrokeList, currStroke->lineColor, currStroke->lineWidth);
+    }
+
+    // add this point to the playback strokes
+    StrokePoint *currPoint = (StrokePoint *)LinkedListIteratorValue(pointIterator);
+    StrokeAddPoint(playbackStrokeList->currentStroke, currPoint->location, currPoint->createdAt, currPoint->startNewSubpath);
+
+    // now go forward
+    if (!LinkedListIteratorForward(pointIterator))
+    {
+        if (!LinkedListIteratorForward(strokeIterator))
+        {
+            [self clearPlayback];
+            // no more points AND no more strokes so quit
+            return NO;
+        } else {
+            // next iteration will set the pointIterator again but
+            // just start a new stroke
+            Stroke *currStroke = (Stroke *)LinkedListIteratorValue(strokeIterator);
+            StrokeListStartNewStroke(playbackStrokeList, currStroke->lineColor, currStroke->lineWidth);
+            LinkedListIteratorRelease(pointIterator);
+            pointIterator = NULL;
+        }
+    } else {
+        // all good
+    }
 
     [self setNeedsDisplay];
+    return YES;
 }
 
 @end

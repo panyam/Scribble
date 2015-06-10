@@ -59,7 +59,7 @@ typedef struct StrokeList {
 extern StrokeList *StrokeListNew();
 extern void StrokeListClear(StrokeList *strokes);
 extern void StrokeListRelease(StrokeList *strokes);
-extern void StrokeListStartNewStroke(StrokeList *strokes, UIColor *lineColor, CGFloat lineWidth);
+extern void StrokeListStartNewStroke(StrokeList *strokeList, CGColorRef lineColor, CGFloat lineWidth);
 extern void StrokeListDraw(StrokeList *list, CGContextRef context, CGFloat alpha);
 
 #endif
