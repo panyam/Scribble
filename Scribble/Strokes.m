@@ -178,3 +178,33 @@ void StrokeListStartNewStroke(StrokeList *strokeList, UIColor *lineColor, CGFloa
     strokeList->currentStroke->lineWidth = lineWidth;
     StrokeSetLineColor(strokeList->currentStroke, lineColor.CGColor);
 }
+
+void StrokeListDraw(StrokeList *strokeList, CGContextRef context, CGFloat alpha)
+{
+    if (!strokeList)
+        return ;
+    
+    LinkedListIterate(strokeList->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
+        Stroke *stroke = obj;
+        CGContextSetLineWidth(context, stroke->lineWidth);
+        CGColorRef lineColor = stroke->lineColor;
+        if (alpha > 0)  // needs alpha dimming
+        {
+            size_t numComponents = CGColorGetNumberOfComponents(stroke->lineColor);
+            const CGFloat *comps = CGColorGetComponents(stroke->lineColor);
+            UIColor *color = nil;
+            if (numComponents == 2)
+            {
+                color = [UIColor colorWithRed:comps[0] green:comps[0] blue:comps[0] alpha:alpha];
+            } else
+            {
+                color = [UIColor colorWithRed:comps[0] green:comps[1] blue:comps[2] alpha:alpha];
+            }
+            lineColor = color.CGColor;
+        }
+        CGContextSetStrokeColorWithColor(context, lineColor);
+        CGContextSetLineCap(context, kCGLineCapRound);
+        CGContextAddPath(context, stroke->pathRef);
+        CGContextStrokePath(context);
+    });
+}

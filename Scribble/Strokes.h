@@ -37,7 +37,7 @@ typedef struct Stroke {
     CGMutablePathRef pathRef;
     CGColorRef lineColor;
     CGFloat lineWidth;
-    CGRect boundingBox;
+    CGFloat minX, minY, maxX, maxY;
 } Stroke;
 
 extern StrokePoint StrokePointMake(CGPoint location, CGFloat createdAt);
@@ -60,5 +60,6 @@ extern StrokeList *StrokeListNew();
 extern void StrokeListClear(StrokeList *strokes);
 extern void StrokeListRelease(StrokeList *strokes);
 extern void StrokeListStartNewStroke(StrokeList *strokes, UIColor *lineColor, CGFloat lineWidth);
+extern void StrokeListDraw(StrokeList *list, CGContextRef context, CGFloat alpha);
 
 #endif

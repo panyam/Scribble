@@ -19,10 +19,8 @@
 
 @implementation CanvasView {
 @private
-    CGPoint currentPoint;
-    CGPoint previousPoint;
-    CGPoint previousPreviousPoint;
-    StrokeList *currStrokeList;
+    StrokeList *recordedStrokeList;
+    StrokeList *playbackStrokeList;
 
     BOOL inPlaybackMode;                // Whether we are in playback mode
     BOOL playbackPaused;                // If in playback mode, whether we are paused
@@ -56,14 +54,14 @@
 {
     self.currLineColor = DEFAULT_LINE_COLOR;
     self.currLineWidth = DEFAULT_LINE_WIDTH;
-    currStrokeList = StrokeListNew();
+    recordedStrokeList = StrokeListNew();
     [self clear];
 }
 
 -(void)dealloc {
     LinkedListIteratorRelease(strokeIterator);
     LinkedListIteratorRelease(pointIterator);
-    StrokeListRelease(currStrokeList);
+    StrokeListRelease(recordedStrokeList);
 }
 
 -(void)clear {
@@ -71,7 +69,7 @@
     LinkedListIteratorRelease(pointIterator);
     strokeIterator = pointIterator = NULL;
 
-    StrokeListClear(currStrokeList);
+    StrokeListClear(recordedStrokeList);
 
     [self startNewStrokeWithColor:self.currLineColor withWidth:self.currLineWidth];
 }
@@ -124,7 +122,7 @@
         self.currLineColor = DEFAULT_LINE_COLOR;
     if (lineColor != nil)
         self.currLineColor = lineColor;
-    StrokeListStartNewStroke(currStrokeList, self.currLineColor, self.currLineWidth);
+    StrokeListStartNewStroke(recordedStrokeList, self.currLineColor, self.currLineWidth);
     [self setNeedsDisplay];
 }
 
@@ -133,55 +131,36 @@
     [self.backgroundColor set];
     UIRectFill(rect);
 
-    // get the graphics context and draw the path
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    LinkedListIterate(currStrokeList->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
-        Stroke *stroke = obj;
-        CGContextSetLineWidth(context, stroke->lineWidth);
-        CGContextSetStrokeColorWithColor(context, stroke->lineColor);
-        CGContextSetLineCap(context, kCGLineCapRound);
-        CGContextAddPath(context, stroke->pathRef);
-        CGContextStrokePath(context);
-    });
+    if (inPlaybackMode)
+    {
+        StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), 0.1);
+        StrokeListDraw(playbackStrokeList, UIGraphicsGetCurrentContext(), 1);
+    } else {
+        StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), 1);
+    }
 }
 
 #pragma mark Touch event handlers
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (inPlaybackMode)
-        return ;
-    UITouch *touch = [touches anyObject];
-
-    // initializes our point records to current location
-    previousPoint = [touch previousLocationInView:self];
-    previousPreviousPoint = [touch previousLocationInView:self];
-    currentPoint = [touch locationInView:self];
-
-    NSLog(@"Touch Began: PrevPrev: (%f, %f), Prev: (%f, %f), Curr: (%f, %f)", previousPreviousPoint.x
-          , previousPreviousPoint.y, previousPoint.x, previousPoint.y, currentPoint.x, currentPoint.y);
-    StrokeAddPoint(currStrokeList->currentStroke, currentPoint, touch.timestamp, YES);
-//
-//    // call touchesMoved:withEvent:, to possibly draw on zero movement
-    [self touchesMoved:touches withEvent:event];
+    if (!inPlaybackMode)
+    {
+        UITouch *touch = touches.anyObject;
+        CGPoint point  = [touch locationInView:self];
+        StrokeAddPoint(recordedStrokeList->currentStroke, point, touch.timestamp, YES);
+        [self touchesMoved:touches withEvent:event];
+    }
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (inPlaybackMode)
-        return ;
-    UITouch *touch = [touches anyObject];
-
-    CGPoint point = [touch locationInView:self];
-    previousPreviousPoint = previousPoint;
-    previousPoint = [touch previousLocationInView:self];
-    currentPoint = [touch locationInView:self];
-
-//    CGPoint mid1 = midPoint(previousPoint, previousPreviousPoint);
-//    CGPoint mid2 = midPoint(currentPoint, previousPoint);
-    // add the point to the current stroke
-    StrokeAddPoint(currStrokeList->currentStroke, point, touch.timestamp, NO);
-    
-    [self setNeedsDisplay];
-//    [self setNeedsDisplayInRect:drawBox];
+    if (!inPlaybackMode)
+    {
+        UITouch *touch = [touches anyObject];
+        CGPoint point = [touch locationInView:self];
+        // add the point to the current stroke
+        StrokeAddPoint(recordedStrokeList->currentStroke, point, touch.timestamp, NO);
+        [self setNeedsDisplay];
+    }
 }
 
 -(void)incrementPlaybackPosition
@@ -189,7 +168,7 @@
     NSLog(@"Incrementing Position");
 //    if (currPlaybackStrokeNode == NULL)
 //    {
-//        currPlaybackStrokeNode = LinkedListHead(currStrokeList->strokes);
+//        currPlaybackStrokeNode = LinkedListHead(recordedStrokeList->strokes);
 //    }
 //
 //    if (currPlaybackStrokeNode == NULL)
