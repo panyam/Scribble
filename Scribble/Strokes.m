@@ -112,7 +112,16 @@ StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint point, CGFloat createdAt, BO
     CGPathAddQuadCurveToPoint(subpath, NULL, previousPoint.x, previousPoint.y, mid2.x, mid2.y);
 
     // compute the rect containing the new segment plus padding for drawn line
-//    CGRect bounds = CGPathGetBoundingBox(subpath);
+    CGRect bounds = CGPathGetBoundingBox(subpath);
+    CGRect drawBox = CGRectInset(bounds, -2.0 * stroke->lineWidth, -2.0 * stroke->lineWidth);
+    if (drawBox.origin.x < stroke->minX)
+        stroke->minX = drawBox.origin.x;
+    if (drawBox.origin.y < stroke->minY)
+        stroke->minY = drawBox.origin.y;
+    if (drawBox.origin.x + drawBox.size.width > stroke->maxX)
+        stroke->maxX = drawBox.origin.x + drawBox.size.width;
+    if (drawBox.origin.y + drawBox.size.height > stroke->maxY)
+        stroke->maxY = drawBox.origin.y + drawBox.size.height;
 
     // append the quad curve to the accumulated path so far.
     CGPathAddPath(stroke->pathRef, NULL, subpath);
