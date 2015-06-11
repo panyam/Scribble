@@ -12,7 +12,6 @@
 
 @property (nonatomic, weak) IBOutlet UIButton *clearButton;
 @property (nonatomic, weak) IBOutlet UIButton *colorPickerButton;
-@property (nonatomic, weak) IBOutlet CanvasView *canvasView;
 @property (nonatomic, weak) IBOutlet HRColorPickerView *colorPickerView;
 @property (nonatomic, weak) IBOutlet NSLayoutConstraint *colorPickerLeftConstraint;
 @property (nonatomic, weak) IBOutlet NSLayoutConstraint *colorPickerTopConstraint;

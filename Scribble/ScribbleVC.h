@@ -11,6 +11,7 @@
 
 @interface ScribbleVC : UIViewController
 
+@property (nonatomic, weak) IBOutlet CanvasView *canvasView;
 @property (nonatomic, weak) IBOutlet UIBarButtonItem *cancelButton;
 @property (nonatomic, weak) IBOutlet UIBarButtonItem *acceptButton;
 @property (nonatomic, weak) IBOutlet UIButton *playButton;
