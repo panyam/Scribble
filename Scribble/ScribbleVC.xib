@@ -13,8 +13,7 @@
                 <outlet property="clearButton" destination="eUX-z3-3Yg" id="j5c-Nx-nAK"/>
                 <outlet property="colorPickerButton" destination="O7R-en-peo" id="JSX-Sg-WXz"/>
                 <outlet property="colorPickerView" destination="IxN-07-oe6" id="RjA-DT-bM3"/>
-                <outlet property="playButton" destination="2Rs-sG-DKp" id="Gba-Fa-Wd6"/>
-                <outlet property="toClipboardButton" destination="BpG-s8-u2q" id="EEN-Gl-a0D"/>
+                <outlet property="pasteButton" destination="XeG-7I-Hk8" id="ly0-NW-IUf"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -25,46 +24,10 @@
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Egc-nX-9RE" customClass="CanvasView">
                     <rect key="frame" x="0.0" y="0.0" width="460" height="554"/>
-                    <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Rs-sG-DKp">
-                            <rect key="frame" x="402" y="22" width="50" height="30"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="30" id="HdC-F6-p07"/>
-                                <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="38" id="M0p-Z4-nmz"/>
-                                <constraint firstAttribute="width" constant="50" id="fcC-nO-khP"/>
-                            </constraints>
-                            <state key="normal" title="Play">
-                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                            </state>
-                            <variation key="default">
-                                <mask key="constraints">
-                                    <exclude reference="M0p-Z4-nmz"/>
-                                </mask>
-                            </variation>
-                            <connections>
-                                <action selector="playButtonClicked:" destination="-1" eventType="touchUpInside" id="xgx-GG-meX"/>
-                            </connections>
-                        </button>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BpG-s8-u2q">
-                            <rect key="frame" x="406" y="51" width="46" height="30"/>
-                            <constraints>
-                                <constraint firstAttribute="width" constant="46" id="y7J-Mm-1eN"/>
-                            </constraints>
-                            <state key="normal" title="Copy">
-                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                            </state>
-                            <connections>
-                                <action selector="copyToClipboardClicked" destination="-1" eventType="touchUpInside" id="T7k-ob-ilA"/>
-                            </connections>
-                        </button>
-                    </subviews>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    <constraints>
-                        <constraint firstItem="2Rs-sG-DKp" firstAttribute="top" secondItem="Egc-nX-9RE" secondAttribute="top" constant="22" id="M8u-mr-F60"/>
-                        <constraint firstAttribute="trailing" secondItem="BpG-s8-u2q" secondAttribute="trailing" constant="8" id="Mgn-1n-qwm"/>
-                        <constraint firstAttribute="trailing" secondItem="2Rs-sG-DKp" secondAttribute="trailing" constant="8" id="Q0T-EI-9kW"/>
-                        <constraint firstItem="BpG-s8-u2q" firstAttribute="top" secondItem="2Rs-sG-DKp" secondAttribute="bottom" constant="-1" id="l8v-Lh-NUg"/>
-                    </constraints>
+                    <connections>
+                        <outlet property="canvasDelegate" destination="-1" id="bQy-wo-WTB"/>
+                    </connections>
                 </view>
                 <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IxN-07-oe6" customClass="HRColorPickerView">
                     <rect key="frame" x="8" y="20" width="444" height="514"/>
@@ -101,11 +64,18 @@
                             <constraints>
                                 <constraint firstAttribute="width" constant="50" id="MgG-4L-1OP"/>
                             </constraints>
-                            <state key="normal" title="Clear">
+                            <state key="normal" title="Clear"/>
+                            <connections>
+                                <action selector="clearButtonClicked" destination="-1" eventType="touchUpInside" id="1uh-dD-66p"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XeG-7I-Hk8">
+                            <rect key="frame" x="74" y="5" width="39" height="30"/>
+                            <state key="normal" title="Paste">
                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                             </state>
                             <connections>
-                                <action selector="clearButtonClicked" destination="-1" eventType="touchUpInside" id="1uh-dD-66p"/>
+                                <action selector="pasteButtonClicked" destination="-1" eventType="touchUpInside" id="RJs-xf-jxe"/>
                             </connections>
                         </button>
                     </subviews>
@@ -117,6 +87,8 @@
                         <constraint firstItem="eUX-z3-3Yg" firstAttribute="leading" secondItem="nOl-hi-cMf" secondAttribute="leading" constant="8" id="Kcn-3t-IuG"/>
                         <constraint firstAttribute="height" constant="40" id="U8L-uI-l6d"/>
                         <constraint firstAttribute="bottom" secondItem="O7R-en-peo" secondAttribute="bottom" id="VtN-Mu-zcs"/>
+                        <constraint firstAttribute="centerY" secondItem="XeG-7I-Hk8" secondAttribute="centerY" id="Wgq-kt-QW0"/>
+                        <constraint firstItem="XeG-7I-Hk8" firstAttribute="leading" secondItem="eUX-z3-3Yg" secondAttribute="trailing" constant="16" id="jem-NY-8wv"/>
                         <constraint firstAttribute="centerY" secondItem="O7R-en-peo" secondAttribute="centerY" id="xLj-7G-tGl"/>
                     </constraints>
                     <variation key="default">

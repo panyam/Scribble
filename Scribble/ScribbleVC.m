@@ -59,20 +59,9 @@
         [self.scribbleDelegate scribbleVCCleared:self];
 }
 
--(IBAction)playButtonClicked:(id)sender
+-(IBAction)pasteButtonClicked
 {
-    if ([((UIButton *)sender).titleLabel.text isEqualToString:@"Play"])
-    {
-        [self.canvasView startPlaying:YES];
-        self.clearButton.enabled = NO;
-        self.colorPickerButton.enabled = NO;
-        [self.playButton setTitle:@"Stop" forState:UIControlStateNormal];
-    } else {
-        [self.canvasView stopPlaying:YES];
-        self.clearButton.enabled = YES;
-        self.colorPickerButton.enabled = YES;
-        [self.playButton setTitle:@"Play" forState:UIControlStateNormal];
-    }
+    NSLog(@"Paste not yet implemented");
 }
 
 -(IBAction)colorPickerViewValueChanged:(id)sender
@@ -81,26 +70,18 @@
     [self.canvasView startNewStrokeWithColor:self.colorPickerView.color withWidth:-1];
 }
 
--(IBAction)copyToClipboardClicked
+#pragma CanvasViewDelegate methods
+
+-(void)canvasView:(CanvasView *)canvasView startedAnimationLoop:(NSInteger)loopIndex resumed:(BOOL)resumed
 {
-    NSDictionary *strokes = self.canvasView.strokeData;
-    NSString *stringToCopy = @"";
-    if (strokes)
-    {
-        NSError *error = nil;
-        NSData *data = [NSJSONSerialization dataWithJSONObject:strokes options:NSJSONWritingPrettyPrinted error:&error];
-        if (error)
-            NSLog(@"Copy Error: %@", error);
-        stringToCopy = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    }
-    [UIPasteboard generalPasteboard].string = stringToCopy;
-    if ([self.scribbleDelegate respondsToSelector:@selector(scribbleVC:dataCopied:)])
-    {
-        [self.scribbleDelegate scribbleVC:self dataCopied:strokes];
-    }
-    else {
-        [[[UIAlertView alloc] initWithTitle:@"Copied" message:@"The strokelist definition has been copied to the simulator's clipboard.  To paste it in the system, press Cmd+C in the simulator (to copy) and then Cmd+V in the mac (to paste)" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil] show];
-    }
+    self.clearButton.enabled = NO;
+    self.colorPickerButton.enabled = NO;
+}
+
+-(void)canvasViewAnimationStopped:(CanvasView *)canvasView
+{
+    self.clearButton.enabled = YES;
+    self.colorPickerButton.enabled = YES;
 }
 
 @end

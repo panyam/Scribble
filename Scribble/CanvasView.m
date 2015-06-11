@@ -292,4 +292,85 @@
     }
 }
 
+-(IBAction)playButtonClicked:(id)sender
+{
+    if ([((UIButton *)sender).titleLabel.text isEqualToString:@"Play"])
+    {
+        [self startPlaying:YES];
+        [self.playButton setTitle:@"Stop" forState:UIControlStateNormal];
+
+        if ([self.canvasDelegate respondsToSelector:@selector(canvasView:startedAnimationLoop:resumed:)])
+            [self.canvasDelegate canvasView:self startedAnimationLoop:self.currAnimationLoop resumed:NO];
+    } else {
+        [self stopPlaying:YES];
+        [self.playButton setTitle:@"Play" forState:UIControlStateNormal];
+        if ([self.canvasDelegate respondsToSelector:@selector(canvasViewAnimationStopped:)])
+            [self.canvasDelegate canvasViewAnimationStopped:self];
+    }
+}
+
+-(IBAction)copyToClipboardClicked
+{
+    NSDictionary *strokes = self.strokeData;
+    NSString *stringToCopy = @"";
+    if (strokes)
+    {
+        NSError *error = nil;
+        NSData *data = [NSJSONSerialization dataWithJSONObject:strokes options:NSJSONWritingPrettyPrinted error:&error];
+        if (error)
+            NSLog(@"Copy Error: %@", error);
+        stringToCopy = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    }
+    [UIPasteboard generalPasteboard].string = stringToCopy;
+    if ([self.canvasDelegate respondsToSelector:@selector(canvasView:dataCopied:)])
+    {
+        [self.canvasDelegate canvasView:self dataCopied:strokes];
+    }
+    else {
+        [[[UIAlertView alloc] initWithTitle:@"Copied" message:@"The strokelist definition has been copied to the simulator's clipboard.  To paste it in the system, press Cmd+C in the simulator (to copy) and then Cmd+V in the mac (to paste)" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil] show];
+    }
+}
+
+-(void)layoutSubviews
+{
+    CGRect bounds = self.bounds;
+    CGRect playButtonBounds = self.playButton.bounds;
+    CGRect copyButtonBounds = self.toClipboardButton.bounds;
+
+    CGFloat yOffset = 25;
+    self.playButton.frame = CGRectMake((bounds.size.width - playButtonBounds.size.width) - 5, bounds.origin.y + yOffset,
+                                        playButtonBounds.size.width, playButtonBounds.size.height);
+    self.toClipboardButton.frame = CGRectMake(bounds.origin.y + 5, bounds.origin.y + yOffset,
+                                               copyButtonBounds.size.width, copyButtonBounds.size.height);
+}
+
+-(UIButton *)playButton
+{
+    if (!_playButton)
+    {
+        _playButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 50, 30)];
+        [_playButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+        [_playButton setTitle:@"Play" forState:UIControlStateNormal];
+        [_playButton  addTarget:self action:@selector(playButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:_playButton];
+        [self setNeedsLayout];
+    }
+    return _playButton;
+}
+
+-(UIButton *)toClipboardButton
+{
+    if (!_toClipboardButton)
+    {
+        _toClipboardButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 50, 30)];
+        [_toClipboardButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+        [_toClipboardButton setTitle:@"Copy" forState:UIControlStateNormal];
+        [_toClipboardButton  addTarget:self action:@selector(copyToClipboardClicked)
+                      forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:_toClipboardButton];
+        [self setNeedsLayout];
+    }
+    return _toClipboardButton;
+}
+
 @end

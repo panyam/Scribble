@@ -8,7 +8,22 @@
 
 #import "ScribbleFwds.h"
 
+@protocol CanvasViewDelegate <NSObject>
+
+-(void)canvasView:(CanvasView *)canvasView startedAnimationLoop:(NSInteger)loopIndex resumed:(BOOL)resumed;
+-(void)canvasView:(CanvasView *)canvasView finishedAnimationLoop:(NSInteger)loopIndex;
+-(void)canvasViewAnimationPaused:(CanvasView *)canvasView;
+-(void)canvasViewAnimationStopped:(CanvasView *)canvasView;
+-(void)canvasView:(CanvasView *)canvasView dataCopied:(NSDictionary *)strokes;
+
+@end
+
 @interface CanvasView : UIView
+
+@property (nonatomic, weak) IBOutlet id<CanvasViewDelegate> canvasDelegate;
+
+@property (nonatomic, strong) IBOutlet UIButton *playButton;
+@property (nonatomic, strong) IBOutlet UIButton *toClipboardButton;
 
 /**
  * Specifies how many times the strokes will be animated before stopping.

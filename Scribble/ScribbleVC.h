@@ -6,18 +6,19 @@
 //  Copyright (c) 2015 osb. All rights reserved.
 //
 
-#import "Scribble.h"
+#import "CanvasView.h"
 #import <Color-Picker-for-iOS/HRColorPickerView.h>
 
 @protocol ScribbleVCDelegate;
 
-@interface ScribbleVC : UIViewController
+@interface ScribbleVC : UIViewController<CanvasViewDelegate>
 
 @property (nonatomic, weak) id<ScribbleVCDelegate>  scribbleDelegate;
 @property (nonatomic, weak) IBOutlet CanvasView *canvasView;
 @property (nonatomic, weak) IBOutlet UIBarButtonItem *cancelButton;
 @property (nonatomic, weak) IBOutlet UIBarButtonItem *acceptButton;
 @property (nonatomic, weak) IBOutlet UIButton *playButton;
+@property (nonatomic, weak) IBOutlet UIButton *pasteButton;
 @property (nonatomic, weak) IBOutlet UIButton *toClipboardButton;
 
 @end
@@ -28,6 +29,5 @@
 -(void)scribbleVCDismissed:(ScribbleVC *)scribbleVC;
 -(void)scribbleVCAccepted:(ScribbleVC *)scribbleVC withStrokes:(NSDictionary *)strokes;
 -(void)scribbleVCCleared:(ScribbleVC *)scribbleVC;
--(void)scribbleVC:(ScribbleVC *)scribbleVC dataCopied:(NSDictionary *)strokes;
 
 @end
