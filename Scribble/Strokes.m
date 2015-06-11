@@ -301,13 +301,13 @@ void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef)
         }
         StrokeSerialize(stroke, dataRef);
 		if (stroke->minX < minX)
-			minX = stroke->minX
+			minX = stroke->minX;
 		if (stroke->minY < minY)
-			minY = stroke->minY
+			minY = stroke->minY;
 		if (stroke->maxX > maxX)
-			maxX = stroke->maxX
+			maxX = stroke->maxX;
 		if (stroke->maxY > maxY)
-			maxY = stroke->maxY
+			maxY = stroke->maxY;
     });
     CFDataAppendString(dataRef, "]");
 
