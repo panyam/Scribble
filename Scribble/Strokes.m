@@ -8,6 +8,28 @@
 
 #import "Strokes.h"
 
+#define KEY_MAKER(key)                                                              \
+CFStringRef Key##key()                                                              \
+{                                                                                   \
+    static CFStringRef stringKey = 0;                                               \
+    static dispatch_once_t onceToken;                                               \
+    dispatch_once(&onceToken, ^{                                                    \
+        stringKey = CFStringCreateWithCString(NULL, #key, kCFStringEncodingASCII);  \
+    });                                                                             \
+    return stringKey;                                                               \
+}
+
+KEY_MAKER(LineWidth)
+KEY_MAKER(LineColor)
+KEY_MAKER(StartsNew)
+KEY_MAKER(X)
+KEY_MAKER(Y)
+KEY_MAKER(MinX)
+KEY_MAKER(MinY)
+KEY_MAKER(MaxX)
+KEY_MAKER(MaxY)
+KEY_MAKER(Points)
+
 CGPoint midPoint(CGPoint p1, CGPoint p2) {
     return CGPointMake((p1.x + p2.x) * 0.5, (p1.y + p2.y) * 0.5);
 }
@@ -19,6 +41,17 @@ StrokePoint StrokePointMake(CGPoint location, CGFloat createdAt)
     out.createdAt = createdAt;
     return out;
 }
+
+CGFloat CFNumberToFloat(CFNumberRef numberRef, CGFloat defaultValue)
+{
+	CGFloat out = defaultValue;
+	if (!numberRef)
+		return defaultValue;
+	if (!CFNumberGetValue(numberRef, CFNumberGetType(numberRef), &out))
+		out = defaultValue;
+	return out;
+}
+
 
 Stroke *StrokeNew()
 {
@@ -35,6 +68,10 @@ void StrokeInit(Stroke *stroke)
     stroke->pathRef = CGPathCreateMutable();
     stroke->lineWidth = DEFAULT_LINE_WIDTH;
     stroke->lineColor = DEFAULT_LINE_COLOR.CGColor;
+    stroke->minX = INT_MAX;
+    stroke->minY = INT_MAX;
+    stroke->maxX = -INT_MAX;
+    stroke->maxY = -INT_MAX;
 }
 
 void StrokeClear(Stroke *stroke)
@@ -321,13 +358,16 @@ void StrokePointSerialize(StrokePoint *point, CFMutableDataRef dataRef)
  */
 CFErrorRef StrokeListDeserialize(CFArrayRef array, StrokeList *strokeList)
 {
-    CFIndex count = CFArrayGetCount(array);
-    for (int i = 0;i < count;i++)
+    if (array != NULL)
     {
-        StrokeListStartNewStroke(strokeList, 0, 0);
+        CFIndex count = CFArrayGetCount(array);
+        for (int i = 0;i < count;i++)
+        {
+            StrokeListStartNewStroke(strokeList, 0, 0);
 
-        CFDictionaryRef strokeDict = CFArrayGetValueAtIndex(array, i);
-        StrokeDeserialize(strokeDict, strokeList->currentStroke);
+            CFDictionaryRef strokeDict = CFArrayGetValueAtIndex(array, i);
+            StrokeDeserialize(strokeDict, strokeList->currentStroke);
+        }
     }
     return NULL;
 }
@@ -337,13 +377,57 @@ CFErrorRef StrokeListDeserialize(CFArrayRef array, StrokeList *strokeList)
  */
 CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke)
 {
-    const void *lineWidthObj = CFDictionaryGetValue(dict, "LineWidth");
-    const void *lineColorObj = CFDictionaryGetValue(dict, "LineColor");
-    const void *minXObj = CFDictionaryGetValue(dict, "MinX");
-    const void *minYObj = CFDictionaryGetValue(dict, "MinY");
-    const void *maxXObj = CFDictionaryGetValue(dict, "MaxX");
-    const void *maxYObj = CFDictionaryGetValue(dict, "MaxY");
-    const void *pointsObj = CFDictionaryGetValue(dict, "Points");
+    if (dict != NULL)
+    {
+        CFNumberRef lineWidthObj = CFDictionaryGetValue(dict, KeyLineWidth());
+        CFArrayRef lineColorObj = CFDictionaryGetValue(dict, KeyLineColor());
+        CFNumberRef minXObj = CFDictionaryGetValue(dict, KeyMinX());
+        CFNumberRef minYObj = CFDictionaryGetValue(dict, KeyMinY());
+        CFNumberRef maxXObj = CFDictionaryGetValue(dict, KeyMaxX());
+        CFNumberRef maxYObj = CFDictionaryGetValue(dict, KeyMaxY());
+        CFArrayRef pointsObj = CFDictionaryGetValue(dict, KeyPoints());
+
+		stroke->lineWidth = CFNumberToFloat(lineWidthObj, DEFAULT_LINE_WIDTH);
+		stroke->minX = CFNumberToFloat(minXObj, INT_MAX);
+		stroke->minY = CFNumberToFloat(minYObj, INT_MAX);
+		stroke->maxX = CFNumberToFloat(maxXObj, -INT_MAX);
+		stroke->maxY = CFNumberToFloat(maxYObj, -INT_MAX);
+
+        CFIndex numColors = CFArrayGetCount(lineColorObj);
+		if (numColors == 2)
+		{
+			CFNumberRef color = CFArrayGetValueAtIndex(lineColorObj, 0);
+			CFNumberRef alpha = CFArrayGetValueAtIndex(lineColorObj, 1);
+			CGFloat colorValue = CFNumberToFloat(color, 0);
+			CGFloat alphaValue = CFNumberToFloat(alpha, 1);
+			UIColor *uiColor = [UIColor colorWithRed:colorValue green:colorValue blue:colorValue alpha:alphaValue];
+			StrokeSetLineColor(stroke, uiColor.CGColor);
+		} else if (numColors == 4)
+		{
+			CFNumberRef red = CFArrayGetValueAtIndex(lineColorObj, 0);
+			CFNumberRef green = CFArrayGetValueAtIndex(lineColorObj, 1);
+			CFNumberRef blue = CFArrayGetValueAtIndex(lineColorObj, 2);
+			CFNumberRef alpha = CFArrayGetValueAtIndex(lineColorObj, 3);
+
+			CGFloat redValue = CFNumberToFloat(red, 0);
+			CGFloat greenValue = CFNumberToFloat(green, 0);
+			CGFloat blueValue = CFNumberToFloat(blue, 0);
+			CGFloat alphaValue = CFNumberToFloat(alpha, 1);
+
+			UIColor *uiColor = [UIColor colorWithRed:redValue green:greenValue blue:blueValue alpha:alphaValue];
+			StrokeSetLineColor(stroke, uiColor.CGColor);
+		}
+
+        CFIndex numPoints = CFArrayGetCount(pointsObj);
+        for (int i = 0;i < numPoints;i++)
+        {
+            CFDictionaryRef pointDict = CFArrayGetValueAtIndex(pointsObj, i);
+
+			StrokePoint point;
+			StrokePointDeserialize(pointDict, &point);
+			StrokeAddPoint(stroke, point->location, point->createdAt, point->startsNew);
+        }
+    }
     return NULL;
 }
 
@@ -352,5 +436,19 @@ CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke)
  */
 CFErrorRef StrokePointDeserialize(CFDictionaryRef dict, StrokePoint *point)
 {
+    if (dict != NULL)
+    {
+        CFNumberRef xObj = CFDictionaryGetValue(dict, KeyX());
+        CFNumberRef yObj = CFDictionaryGetValue(dict, KeyY());
+        CFNumberRef startsNewObj = CFDictionaryGetValue(dict, KeyStartsNew());
+		point->location.x = CFNumberToFloat(xObj, 0);
+		point->location.y = CFNumberToFloat(yObj, 0);
+		point->startsNewSubpath = NO;
+
+		if (startsNewObj)
+		{
+			CFNumberGetValue(startsNewObj, CFNumberGetType(startsNewObj), &point->startsNewSubpath);
+		}
+    }
     return NULL;
 }

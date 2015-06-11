@@ -58,6 +58,7 @@
 {
     NSArray *strokes = self.canvasView.strokeData;
     NSLog(@"Strokes: ", strokes);
+    self.canvasView.strokeData = strokes;
 
     if ([((UIButton *)sender).titleLabel.text isEqualToString:@"Play"])
     {

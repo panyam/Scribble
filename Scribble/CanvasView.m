@@ -245,6 +245,8 @@
 -(void)setStrokeData:(NSArray *)strokesArray
 {
     [self clear];
+    if (recordedStrokeList == NULL)
+        recordedStrokeList = StrokeListNew();
     StrokeListDeserialize((__bridge CFArrayRef)(strokesArray), recordedStrokeList);
 }
 
