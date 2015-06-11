@@ -288,10 +288,10 @@ void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef)
     if (strokeList == NULL || dataRef == NULL)
         return ;
 
-	CGFloat minX = INT_MAX;
-	CGFloat minY = INT_MAX;
-	CGFloat maxX = -INT_MAX;
-	CGFloat maxY = -INT_MAX;
+	__block CGFloat minX = INT_MAX;
+	__block CGFloat minY = INT_MAX;
+	__block CGFloat maxX = -INT_MAX;
+	__block CGFloat maxY = -INT_MAX;
     CFDataAppendString(dataRef, "{\"Strokes\": [");
     LinkedListIterate(strokeList->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
         Stroke *stroke = obj;
