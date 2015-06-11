@@ -41,15 +41,22 @@
 {
     if (sender == self.cancelButton)
     {
-        [self dismissViewControllerAnimated:YES completion:nil];
+        if ([self.scribbleDelegate respondsToSelector:@selector(scribbleVCDismissed:)])
+            [self.scribbleDelegate scribbleVCDismissed:self];
+        else
+            [self dismissViewControllerAnimated:YES completion:nil];
     } else if (sender == self.acceptButton)
     {
+		if ([self.scribbleDelegate respondsToSelector:@selector(scribbleVCAccepted:withStrokes:)])
+			[self.scribbleDelegate scribbleVCAccepted:self withStrokes:self.canvasView.strokeData];
     }
 }
 
 -(IBAction)clearButtonClicked
 {
     [self.canvasView clear];
+    if ([self.scribbleDelegate respondsToSelector:@selector(scribbleVCCleared:)])
+        [self.scribbleDelegate scribbleVCCleared:self];
 }
 
 -(IBAction)playButtonClicked:(id)sender
@@ -87,7 +94,13 @@
         stringToCopy = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     }
     [UIPasteboard generalPasteboard].string = stringToCopy;
-    [[[UIAlertView alloc] initWithTitle:@"Copied" message:@"The strokelist definition has been copied to the simulator's clipboard.  To paste it in the system, press Cmd+C in the simulator (to copy) and then Cmd+V in the mac (to paste)" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil] show];
+    if ([self.scribbleDelegate respondsToSelector:@selector(scribbleVC:dataCopied:)])
+    {
+        [self.scribbleDelegate scribbleVC:self dataCopied:strokes];
+    }
+    else {
+        [[[UIAlertView alloc] initWithTitle:@"Copied" message:@"The strokelist definition has been copied to the simulator's clipboard.  To paste it in the system, press Cmd+C in the simulator (to copy) and then Cmd+V in the mac (to paste)" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil] show];
+    }
 }
 
 @end
