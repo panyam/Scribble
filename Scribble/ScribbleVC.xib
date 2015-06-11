@@ -14,6 +14,7 @@
                 <outlet property="colorPickerButton" destination="O7R-en-peo" id="JSX-Sg-WXz"/>
                 <outlet property="colorPickerView" destination="IxN-07-oe6" id="RjA-DT-bM3"/>
                 <outlet property="playButton" destination="2Rs-sG-DKp" id="Gba-Fa-Wd6"/>
+                <outlet property="toClipboardButton" destination="BpG-s8-u2q" id="EEN-Gl-a0D"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -44,15 +45,29 @@
                                 <action selector="playButtonClicked:" destination="-1" eventType="touchUpInside" id="xgx-GG-meX"/>
                             </connections>
                         </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BpG-s8-u2q">
+                            <rect key="frame" x="406" y="51" width="46" height="30"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="46" id="y7J-Mm-1eN"/>
+                            </constraints>
+                            <state key="normal" title="Copy">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <connections>
+                                <action selector="copyToClipboardClicked" destination="-1" eventType="touchUpInside" id="T7k-ob-ilA"/>
+                            </connections>
+                        </button>
                     </subviews>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     <constraints>
                         <constraint firstItem="2Rs-sG-DKp" firstAttribute="top" secondItem="Egc-nX-9RE" secondAttribute="top" constant="22" id="M8u-mr-F60"/>
+                        <constraint firstAttribute="trailing" secondItem="BpG-s8-u2q" secondAttribute="trailing" constant="8" id="Mgn-1n-qwm"/>
                         <constraint firstAttribute="trailing" secondItem="2Rs-sG-DKp" secondAttribute="trailing" constant="8" id="Q0T-EI-9kW"/>
+                        <constraint firstItem="BpG-s8-u2q" firstAttribute="top" secondItem="2Rs-sG-DKp" secondAttribute="bottom" constant="-1" id="l8v-Lh-NUg"/>
                     </constraints>
                 </view>
                 <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IxN-07-oe6" customClass="HRColorPickerView">
-                    <rect key="frame" x="8" y="70" width="444" height="464"/>
+                    <rect key="frame" x="8" y="20" width="444" height="514"/>
                     <color key="backgroundColor" red="0.68296397109999996" green="0.90263463909999997" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nOl-hi-cMf" userLabel="Tools View">
@@ -115,7 +130,7 @@
             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="nOl-hi-cMf" secondAttribute="trailing" constant="8" id="1KO-Nl-1X7"/>
-                <constraint firstItem="IxN-07-oe6" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="70" id="4ki-Fg-grs"/>
+                <constraint firstItem="IxN-07-oe6" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="20" id="4ki-Fg-grs"/>
                 <constraint firstAttribute="bottom" secondItem="IxN-07-oe6" secondAttribute="bottom" constant="66" id="9MR-iY-mcM"/>
                 <constraint firstItem="nOl-hi-cMf" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" multiplier="0.5" id="BMU-FW-i5y"/>
                 <constraint firstItem="nOl-hi-cMf" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="DPE-kM-6sV"/>

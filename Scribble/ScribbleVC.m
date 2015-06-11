@@ -10,7 +10,6 @@
 
 @interface ScribbleVC ()
 
-@property (nonatomic, weak) IBOutlet UIButton *playButton;
 @property (nonatomic, weak) IBOutlet UIButton *clearButton;
 @property (nonatomic, weak) IBOutlet UIButton *colorPickerButton;
 @property (nonatomic, weak) IBOutlet CanvasView *canvasView;
@@ -56,10 +55,6 @@
 
 -(IBAction)playButtonClicked:(id)sender
 {
-    NSArray *strokes = self.canvasView.strokeData;
-    NSLog(@"Strokes: ", strokes);
-    self.canvasView.strokeData = strokes;
-
     if ([((UIButton *)sender).titleLabel.text isEqualToString:@"Play"])
     {
         [self.canvasView startPlaying:YES];
@@ -78,6 +73,22 @@
 {
     self.colorPickerButton.backgroundColor = self.colorPickerView.color;
     [self.canvasView startNewStrokeWithColor:self.colorPickerView.color withWidth:-1];
+}
+
+-(IBAction)copyToClipboardClicked
+{
+    NSArray *strokes = self.canvasView.strokeData;
+    NSString *stringToCopy = @"";
+    if (strokes)
+    {
+        NSError *error = nil;
+        NSData *data = [NSJSONSerialization dataWithJSONObject:strokes options:NSJSONWritingPrettyPrinted error:&error];
+        if (error)
+            NSLog(@"Copy Error: %@", error);
+        stringToCopy = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    }
+    [UIPasteboard generalPasteboard].string = stringToCopy;
+    [[[UIAlertView alloc] initWithTitle:@"Copied" message:@"The strokelist definition has been copied to the simulator's clipboard.  To paste it in the system, press Cmd+C in the simulator (to copy) and then Cmd+V in the mac (to paste)" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil] show];
 }
 
 @end

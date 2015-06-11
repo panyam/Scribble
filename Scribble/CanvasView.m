@@ -202,7 +202,7 @@
 
     // add this point to the playback strokes
     StrokePoint *currPoint = (StrokePoint *)LinkedListIteratorValue(pointIterator);
-    StrokeAddPoint(playbackStrokeList->currentStroke, currPoint->location, currPoint->createdAt, currPoint->startNewSubpath);
+    StrokeAddPoint(playbackStrokeList->currentStroke, currPoint->location, currPoint->timestamp, currPoint->startNewSubpath);
 
     // now go forward
     if (!LinkedListIteratorForward(pointIterator))
