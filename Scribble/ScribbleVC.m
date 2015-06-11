@@ -75,12 +75,14 @@
 -(void)canvasView:(CanvasView *)canvasView startedAnimationLoop:(NSInteger)loopIndex resumed:(BOOL)resumed
 {
     self.clearButton.enabled = NO;
+    self.pasteButton.enabled = NO;
     self.colorPickerButton.enabled = NO;
 }
 
 -(void)canvasViewAnimationStopped:(CanvasView *)canvasView
 {
     self.clearButton.enabled = YES;
+    self.pasteButton.enabled = YES;
     self.colorPickerButton.enabled = YES;
 }
 

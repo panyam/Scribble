@@ -337,10 +337,10 @@
     CGRect playButtonBounds = self.playButton.bounds;
     CGRect copyButtonBounds = self.toClipboardButton.bounds;
 
-    CGFloat yOffset = 25;
-    self.playButton.frame = CGRectMake((bounds.size.width - playButtonBounds.size.width) - 5, bounds.origin.y + yOffset,
+    CGFloat yOffset = (bounds.size.height - playButtonBounds.size.height) - 5;
+    self.playButton.frame = CGRectMake((bounds.size.width - playButtonBounds.size.width) - 5, yOffset,
                                         playButtonBounds.size.width, playButtonBounds.size.height);
-    self.toClipboardButton.frame = CGRectMake(bounds.origin.y + 5, bounds.origin.y + yOffset,
+    self.toClipboardButton.frame = CGRectMake(bounds.origin.x + 5, yOffset,
                                                copyButtonBounds.size.width, copyButtonBounds.size.height);
 }
 
@@ -351,7 +351,8 @@
         _playButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 50, 30)];
         [_playButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
         [_playButton setTitle:@"Play" forState:UIControlStateNormal];
-        [_playButton  addTarget:self action:@selector(playButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [_playButton addTarget:self action:@selector(playButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [_playButton.titleLabel setFont:[UIFont systemFontOfSize:12]];
         [self addSubview:_playButton];
         [self setNeedsLayout];
     }
@@ -365,8 +366,9 @@
         _toClipboardButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 50, 30)];
         [_toClipboardButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
         [_toClipboardButton setTitle:@"Copy" forState:UIControlStateNormal];
-        [_toClipboardButton  addTarget:self action:@selector(copyToClipboardClicked)
+        [_toClipboardButton addTarget:self action:@selector(copyToClipboardClicked)
                       forControlEvents:UIControlEventTouchUpInside];
+        [_toClipboardButton.titleLabel setFont:[UIFont systemFontOfSize:12]];
         [self addSubview:_toClipboardButton];
         [self setNeedsLayout];
     }
