@@ -15,6 +15,10 @@
 @property (nonatomic, strong) UIColor *currLineColor;
 @property (nonatomic) CGFloat currLineWidth;
 @property (nonatomic, strong) NSTimer *playerTimer;
+@property (nonatomic) NSInteger currAnimationLoop;
+@property (nonatomic) BOOL inPlaybackMode;                // Whether we are in playback mode
+@property (nonatomic) BOOL playbackPaused;                // If in playback mode, whether we are paused
+
 @end
 
 @implementation CanvasView {
@@ -22,15 +26,12 @@
     StrokeList *recordedStrokeList;
     StrokeList *playbackStrokeList;
 
-    BOOL inPlaybackMode;                // Whether we are in playback mode
-    BOOL playbackPaused;                // If in playback mode, whether we are paused
     LinkedListIterator *strokeIterator;
     LinkedListIterator *pointIterator;
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
-
     if (self) {
         // NOTE: do not change the backgroundColor here, so it can be set in IB.
         [self initCommon];
@@ -54,8 +55,11 @@
 {
     self.currLineColor = DEFAULT_LINE_COLOR;
     self.currLineWidth = DEFAULT_LINE_WIDTH;
+    self.animationCount = 5;
+    self.playbackStrokeAlpha = 0.08;
+    self.delayBetweenAnimationLoops = 0.5;
+    self.delayBetweenAnimationFrames = 0.025;
     recordedStrokeList = NULL;
-//    self.translateBy = CGPointMake(-20, -20);
     [self clear];
 }
 
@@ -91,36 +95,6 @@
     [super removeFromSuperview];
 }
 
--(void)startPlaying:(BOOL)restart {
-    NSLog(@"Starting Playback, Restarting: %@", restart ? @"YES" : @"NO");
-    [self.playerTimer invalidate];
-    self.playerTimer = nil;
-    if (restart)
-    {
-        [self clearPlayback];
-    }
-    inPlaybackMode = YES;
-    self.playerTimer = [NSTimer scheduledTimerWithTimeInterval:0.02
-                                                        target:self
-                                                      selector:@selector(advancePlayer)
-                                                      userInfo:nil
-                                                       repeats:YES];
-}
-
--(void)stopPlaying:(BOOL)finish {
-    NSLog(@"Stopping Playback, Finishing: %@", finish ? @"YES" : @"NO");
-    [self.playerTimer invalidate];
-    self.playerTimer = nil;
-    if (finish)
-    {
-        inPlaybackMode = NO;
-        [self clearPlayback];
-    } else {
-        playbackPaused = YES;
-    }
-    [self setNeedsDisplay];
-}
-
 -(void)startNewStrokeWithColor:(UIColor *)lineColor withWidth:(CGFloat)lineWidth
 {
     if (lineWidth > 0)
@@ -137,48 +111,94 @@
     [self setNeedsDisplay];
 }
 
-- (void)drawRect:(CGRect)rect {
-    // clear rect
-    [self.backgroundColor set];
-    UIRectFill(rect);
+-(void)setTranslateBy:(CGPoint)translateBy_
+{
+    _translateBy = translateBy_;
+    [self setNeedsDisplay];
+}
 
-    if (inPlaybackMode)
+-(NSDictionary *)strokeData
+{
+    CFMutableDataRef dataRef = CFDataCreateMutable(NULL, 0);
+    StrokeListSerialize(recordedStrokeList, dataRef);
+    NSMutableData *data = (__bridge NSMutableData *)(dataRef);
+    NSError *error = nil;
+    NSDictionary *out = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    if (error)
     {
-        StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), 0.1, self.translateBy);
-        StrokeListDraw(playbackStrokeList, UIGraphicsGetCurrentContext(), 1, self.translateBy);
+        NSLog(@"Error: %@", error);
+    }
+    return out;
+}
+
+-(void)setStrokeData:(NSDictionary *)strokesDict
+{
+    [self clear];
+    if (recordedStrokeList == NULL)
+        recordedStrokeList = StrokeListNew();
+    StrokeListDeserialize((__bridge CFDictionaryRef)(strokesDict), recordedStrokeList);
+    StrokeListDetectBounds(recordedStrokeList);
+}
+
+#pragma Stroke Animations
+
+-(void)startPlaying:(BOOL)restart {
+    NSLog(@"Starting Playback, Restarting: %@", restart ? @"YES" : @"NO");
+    [self.playerTimer invalidate];
+    self.playerTimer = nil;
+    if (restart)
+    {
+        self.currAnimationLoop = 0;
+        [self clearPlayback];
+    }
+    self.inPlaybackMode = YES;
+    self.playerTimer = [NSTimer scheduledTimerWithTimeInterval:self.delayBetweenAnimationFrames
+                                                        target:self
+                                                      selector:@selector(strokeAnimationFrame)
+                                                      userInfo:nil
+                                                       repeats:YES];
+}
+
+-(void)stopPlaying:(BOOL)finish {
+    NSLog(@"Stopping Playback, Finishing: %@", finish ? @"YES" : @"NO");
+    [self.playerTimer invalidate];
+    self.playerTimer = nil;
+    if (finish)
+    {
+        self.inPlaybackMode = NO;
+        [self clearPlayback];
     } else {
-        StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), 1, self.translateBy);
+        self.playbackPaused = YES;
     }
+    [self setNeedsDisplay];
 }
 
-#pragma mark Touch event handlers
-
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (!inPlaybackMode || !self.disableTouches)
+-(void)strokeAnimationFrame
+{
+    if (![self advanceStrokeFrame])
     {
-        if (recordedStrokeList == NULL)
+        // loop has finished
+        [self.playerTimer invalidate];
+        self.playerTimer = nil;
+        self.currAnimationLoop++;
+
+        if (self.animationCount < 0 || self.currAnimationLoop < self.animationCount)
         {
-            [self startNewStrokeWithColor:self.currLineColor withWidth:self.currLineWidth];
+            // start again
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delayBetweenAnimationLoops * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self startPlaying:NO];
+            });
+        } else {
+            // animation finished
+            self.inPlaybackMode = NO;
+            [self setNeedsDisplay];
         }
-        UITouch *touch = touches.anyObject;
-        CGPoint point  = [touch locationInView:self];
-        StrokeAddPoint(recordedStrokeList->currentStroke, point, touch.timestamp, YES);
-        [self touchesMoved:touches withEvent:event];
+    } else {
+        // nothing to do
     }
 }
 
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (!inPlaybackMode || !self.disableTouches)
-    {
-        UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:self];
-        // add the point to the current stroke
-        StrokeAddPoint(recordedStrokeList->currentStroke, point, touch.timestamp, NO);
-        [self setNeedsDisplay];
-    }
-}
-
--(BOOL)advancePlayer
+-(BOOL)advanceStrokeFrame
 {
     if (recordedStrokeList == NULL)
         return NO;
@@ -229,33 +249,47 @@
     return YES;
 }
 
--(void)setTranslateBy:(CGPoint)translateBy_
-{
-    _translateBy = translateBy_;
-    [self setNeedsDisplay];
-}
+#pragma mark Touch event handlers
 
--(NSDictionary *)strokeData
-{
-    CFMutableDataRef dataRef = CFDataCreateMutable(NULL, 0);
-    StrokeListSerialize(recordedStrokeList, dataRef);
-    NSMutableData *data = (__bridge NSMutableData *)(dataRef);
-    NSError *error = nil;
-    NSDictionary *out = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-    if (error)
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (!self.inPlaybackMode && !self.disableTouches)
     {
-        NSLog(@"Error: %@", error);
+        if (recordedStrokeList == NULL)
+        {
+            [self startNewStrokeWithColor:self.currLineColor withWidth:self.currLineWidth];
+        }
+        UITouch *touch = touches.anyObject;
+        CGPoint point  = [touch locationInView:self];
+        StrokeAddPoint(recordedStrokeList->currentStroke, point, touch.timestamp, YES);
+        [self touchesMoved:touches withEvent:event];
     }
-    return out;
 }
 
--(void)setStrokeData:(NSDictionary *)strokesDict
-{
-    [self clear];
-    if (recordedStrokeList == NULL)
-        recordedStrokeList = StrokeListNew();
-    StrokeListDeserialize((__bridge CFDictionaryRef)(strokesDict), recordedStrokeList);
-    StrokeListDetectBounds(recordedStrokeList);
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (!self.inPlaybackMode && !self.disableTouches)
+    {
+        UITouch *touch = [touches anyObject];
+        CGPoint point = [touch locationInView:self];
+        // add the point to the current stroke
+        StrokeAddPoint(recordedStrokeList->currentStroke, point, touch.timestamp, NO);
+        [self setNeedsDisplay];
+    }
+}
+
+#pragma Draw It!
+
+- (void)drawRect:(CGRect)rect {
+    // clear rect
+    [self.backgroundColor set];
+    UIRectFill(rect);
+
+    if (self.inPlaybackMode)
+    {
+        StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), self.playbackStrokeAlpha, self.translateBy);
+        StrokeListDraw(playbackStrokeList, UIGraphicsGetCurrentContext(), 1, self.translateBy);
+    } else {
+        StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), 1, self.translateBy);
+    }
 }
 
 @end
