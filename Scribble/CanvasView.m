@@ -151,6 +151,7 @@
         self.currAnimationLoop = 0;
         [self clearPlayback];
     }
+    [self.playButton setTitle:@"Stop" forState:UIControlStateNormal];
     self.inPlaybackMode = YES;
     self.playerTimer = [NSTimer scheduledTimerWithTimeInterval:self.delayBetweenAnimationFrames
                                                         target:self
@@ -170,6 +171,7 @@
     } else {
         self.playbackPaused = YES;
     }
+    [self.playButton setTitle:@"Play" forState:UIControlStateNormal];
     [self setNeedsDisplay];
 }
 
@@ -297,13 +299,11 @@
     if ([((UIButton *)sender).titleLabel.text isEqualToString:@"Play"])
     {
         [self startPlaying:YES];
-        [self.playButton setTitle:@"Stop" forState:UIControlStateNormal];
 
         if ([self.canvasDelegate respondsToSelector:@selector(canvasView:startedAnimationLoop:resumed:)])
             [self.canvasDelegate canvasView:self startedAnimationLoop:self.currAnimationLoop resumed:NO];
     } else {
         [self stopPlaying:YES];
-        [self.playButton setTitle:@"Play" forState:UIControlStateNormal];
         if ([self.canvasDelegate respondsToSelector:@selector(canvasViewAnimationStopped:)])
             [self.canvasDelegate canvasViewAnimationStopped:self];
     }
