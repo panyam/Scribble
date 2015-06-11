@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		10804CD21B29076C00D0AD53 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 10804CD11B29076C00D0AD53 /* AppDelegate.m */; };
 		1082F8A81B26033E00268D04 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1082F8A71B26033E00268D04 /* main.m */; };
-		1082F8AB1B26033E00268D04 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1082F8AA1B26033E00268D04 /* AppDelegate.m */; };
 		1082F8B31B26033E00268D04 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1082F8B21B26033E00268D04 /* Images.xcassets */; };
 		1082F8B61B26033E00268D04 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1082F8B41B26033E00268D04 /* LaunchScreen.xib */; };
 		1082F8C21B26033E00268D04 /* ScribbleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1082F8C11B26033E00268D04 /* ScribbleTests.m */; };
@@ -30,11 +30,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		10804CD01B29076C00D0AD53 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Demo/AppDelegate.h; sourceTree = "<group>"; };
+		10804CD11B29076C00D0AD53 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = Demo/AppDelegate.m; sourceTree = "<group>"; };
 		1082F8A21B26033E00268D04 /* Scribble.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Scribble.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1082F8A61B26033E00268D04 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1082F8A71B26033E00268D04 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		1082F8A91B26033E00268D04 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		1082F8AA1B26033E00268D04 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		1082F8B21B26033E00268D04 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		1082F8B51B26033E00268D04 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		1082F8BB1B26033E00268D04 /* ScribbleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScribbleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,9 +79,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		10804CCF1B29076100D0AD53 /* Demo */ = {
+			isa = PBXGroup;
+			children = (
+				10804CD01B29076C00D0AD53 /* AppDelegate.h */,
+				10804CD11B29076C00D0AD53 /* AppDelegate.m */,
+			);
+			name = Demo;
+			sourceTree = "<group>";
+		};
 		1082F8991B26033E00268D04 = {
 			isa = PBXGroup;
 			children = (
+				10804CCF1B29076100D0AD53 /* Demo */,
 				1082F8A41B26033E00268D04 /* Scribble */,
 				1082F8BE1B26033E00268D04 /* ScribbleTests */,
 				1082F8A31B26033E00268D04 /* Products */,
@@ -109,8 +119,6 @@
 				1082F8CF1B26037900268D04 /* ScribbleVC.xib */,
 				1082F8D01B26037900268D04 /* Strokes.h */,
 				1082F8D11B26037900268D04 /* Strokes.m */,
-				1082F8A91B26033E00268D04 /* AppDelegate.h */,
-				1082F8AA1B26033E00268D04 /* AppDelegate.m */,
 				1082F8B21B26033E00268D04 /* Images.xcassets */,
 				1082F8B41B26033E00268D04 /* LaunchScreen.xib */,
 				1082F8A51B26033E00268D04 /* Supporting Files */,
@@ -288,11 +296,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1082F8AB1B26033E00268D04 /* AppDelegate.m in Sources */,
 				1082F8D21B26037900268D04 /* CanvasView.m in Sources */,
 				1082F8A81B26033E00268D04 /* main.m in Sources */,
 				1082F8D31B26037900268D04 /* ScribbleVC.m in Sources */,
 				1082F8D51B26037900268D04 /* Strokes.m in Sources */,
+				10804CD21B29076C00D0AD53 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
