@@ -192,7 +192,7 @@
             });
         } else {
             // animation finished
-            self.inPlaybackMode = NO;
+            [self stopPlaying:YES];
             [self setNeedsDisplay];
         }
     } else {
