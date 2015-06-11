@@ -28,6 +28,7 @@ KEY_MAKER(MinX)
 KEY_MAKER(MinY)
 KEY_MAKER(MaxX)
 KEY_MAKER(MaxY)
+KEY_MAKER(MaxLineWidth)
 KEY_MAKER(Points)
 KEY_MAKER(Strokes)
 
@@ -93,30 +94,24 @@ void StrokeRelease(Stroke *stroke)
         free(stroke);
 }
 
-StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint point, CGFloat timestamp, BOOL newSubpath)
+/**
+ * Redraws the CGPath object for a particular stroke
+ */
+void StrokeRefresh(Stroke *stroke)
 {
-    // only add if new point or if distance is at least certain distance away
-    CGPoint currentPoint = point;
-    CGPoint previousPoint = point;
-    CGPoint previousPreviousPoint = point;
-    if (!StrokeIsEmpty(stroke) && !newSubpath)
-    {
-        StrokePoint *lastPoint = LinkedListNodeData(LinkedListTail(stroke->points));
+}
 
-        // if the finger has moved less than the min dist ...
-        CGFloat dx = point.x - lastPoint->location.x;
-        CGFloat dy = point.y - lastPoint->location.y;
-
-        if ((dx * dx + dy * dy) < kPointMinDistanceSquared) {
-            // ... then ignore this movement
-            return NULL;
-        }
-    }
-
+void StrokeUpdatePathWithLastPoint(Stroke *stroke)
+{
+	LinkedListNode *currNode = LinkedListTail(stroke->points);
+    StrokePoint *currStrokePoint = LinkedListNodeData(currNode);
+    CGPoint currentPoint = currStrokePoint->location;
+    CGPoint previousPoint = currStrokePoint->location;
+    CGPoint previousPreviousPoint = currStrokePoint->location;
     // get the last 2 points that we have been adding so far
-    if (!newSubpath)
+    if (!currStrokePoint->startNewSubpath)
     {
-        LinkedListNode *previousNode = LinkedListTail(stroke->points);
+        LinkedListNode *previousNode = LinkedListNodePrev(currNode);
         if (previousNode)
         {
             StrokePoint *prevStrokePoint = LinkedListNodeData(previousNode);
@@ -137,11 +132,6 @@ StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint point, CGFloat timestamp, BO
     // update points: previousPrevious -> mid1 -> previous -> mid2 -> current
     CGPoint mid1 = midPoint(previousPoint, previousPreviousPoint);
     CGPoint mid2 = midPoint(currentPoint, previousPoint);
-
-    StrokePoint *newPoint = LinkedListAddObject(stroke->points, sizeof(StrokePoint));
-    newPoint->location = point;
-    newPoint->timestamp = timestamp;
-    newPoint->startNewSubpath = newSubpath;
 
     // to represent the finger movement, create a new path segment,
     // a quadratic bezier path from mid1 to mid2, using previous as a control point
@@ -164,7 +154,30 @@ StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint point, CGFloat timestamp, BO
     // append the quad curve to the accumulated path so far.
     CGPathAddPath(stroke->pathRef, NULL, subpath);
     CGPathRelease(subpath);
+}
 
+StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint point, CGFloat timestamp, BOOL newSubpath)
+{
+    // only add if new point or if distance is at least certain distance away
+    if (!StrokeIsEmpty(stroke) && !newSubpath)
+    {
+        StrokePoint *lastPoint = LinkedListNodeData(LinkedListTail(stroke->points));
+
+        // if the finger has moved less than the min dist ...
+        CGFloat dx = point.x - lastPoint->location.x;
+        CGFloat dy = point.y - lastPoint->location.y;
+
+        if ((dx * dx + dy * dy) < kPointMinDistanceSquared) {
+            // ... then ignore this movement
+            return NULL;
+        }
+    }
+
+    StrokePoint *newPoint = LinkedListAddObject(stroke->points, sizeof(StrokePoint));
+    newPoint->location = point;
+    newPoint->timestamp = timestamp;
+    newPoint->startNewSubpath = newSubpath;
+	StrokeUpdatePathWithLastPoint(stroke);
     return newPoint;
 }
 
@@ -207,6 +220,57 @@ void StrokeListRelease(StrokeList *sl)
 	StrokeListClear(sl);
 	if (sl)
 		free(sl);
+}
+
+void StrokeListRefresh(StrokeList *strokes)
+{
+    LinkedListIterate(strokes->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
+        Stroke *stroke = obj;
+		StrokeRefresh(stroke);
+	});
+}
+
+void StrokeListDetectBounds(StrokeList *strokes)
+{
+	strokes->minX = INT_MAX;
+	strokes->minY = INT_MAX;
+	strokes->maxX = -INT_MAX;
+	strokes->maxY = -INT_MAX;
+	strokes->maxLineWidth = DEFAULT_LINE_WIDTH;
+    LinkedListIterate(strokes->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
+        Stroke *stroke = obj;
+		if (stroke->minX < strokes->minX)
+			strokes->minX = stroke->minX;
+		if (stroke->minY < strokes->minY)
+			strokes->minY = stroke->minY;
+		if (stroke->maxX > strokes->maxX)
+			strokes->maxX = stroke->maxX;
+		if (stroke->maxY > strokes->maxY)
+			strokes->maxY = stroke->maxY;
+		if (stroke->lineWidth > strokes->maxLineWidth)
+			strokes->maxLineWidth = stroke->lineWidth;
+	});
+	// Add some buffer
+	strokes->minX -= strokes->maxLineWidth * 2;
+	strokes->minY -= strokes->maxLineWidth * 2;
+	strokes->maxX += strokes->maxLineWidth * 2;
+	strokes->maxY += strokes->maxLineWidth * 2;
+}
+
+void StrokeListTranslate(StrokeList *strokes, CGFloat deltaX, CGFloat deltaY)
+{
+    LinkedListIterate(strokes->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
+        Stroke *stroke = obj;
+		LinkedListIterate(stroke->points, ^(void *obj, NSUInteger idx, BOOL *stop) {
+			StrokePoint *point = obj;
+			point->location.x -= deltaX;
+			point->location.y -= deltaY;
+		});
+		stroke->minX -= deltaX;
+		stroke->minY -= deltaY;
+		stroke->maxX -= deltaX;
+		stroke->maxY -= deltaY;
+	});
 }
 
 void StrokeListStartNewStroke(StrokeList *strokeList, CGColorRef lineColor, CGFloat lineWidth)
@@ -288,10 +352,7 @@ void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef)
     if (strokeList == NULL || dataRef == NULL)
         return ;
 
-	__block CGFloat minX = INT_MAX;
-	__block CGFloat minY = INT_MAX;
-	__block CGFloat maxX = -INT_MAX;
-	__block CGFloat maxY = -INT_MAX;
+	StrokeListDetectBounds(strokeList);
     CFDataAppendString(dataRef, "{\"Strokes\": [");
     LinkedListIterate(strokeList->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
         Stroke *stroke = obj;
@@ -300,26 +361,20 @@ void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef)
             CFDataAppendString(dataRef, ",");
         }
         StrokeSerialize(stroke, dataRef);
-		if (stroke->minX < minX)
-			minX = stroke->minX;
-		if (stroke->minY < minY)
-			minY = stroke->minY;
-		if (stroke->maxX > maxX)
-			maxX = stroke->maxX;
-		if (stroke->maxY > maxY)
-			maxY = stroke->maxY;
     });
     CFDataAppendString(dataRef, "]");
 
     // Write the bounding box
     CFDataAppendString(dataRef, ",\"MinX\":");
-    CFDataAppendFloat(dataRef, minX, 2);
+    CFDataAppendFloat(dataRef, strokeList->minX, 2);
     CFDataAppendString(dataRef, ",\"MinY\":");
-    CFDataAppendFloat(dataRef, minY, 2);
+    CFDataAppendFloat(dataRef, strokeList->minY, 2);
     CFDataAppendString(dataRef, ",\"MaxX\":");
-    CFDataAppendFloat(dataRef, maxX, 2);
+    CFDataAppendFloat(dataRef, strokeList->maxX, 2);
     CFDataAppendString(dataRef, ",\"MaxY\":");
-    CFDataAppendFloat(dataRef, maxY, 2);
+    CFDataAppendFloat(dataRef, strokeList->maxY, 2);
+    CFDataAppendString(dataRef, ",\"MaxLineWidth\":");
+    CFDataAppendFloat(dataRef, strokeList->maxLineWidth, 2);
 	
 	// Finish
     CFDataAppendString(dataRef, "}");

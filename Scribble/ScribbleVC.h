@@ -26,8 +26,8 @@
 
 @optional
 -(void)scribbleVCDismissed:(ScribbleVC *)scribbleVC;
--(void)scribbleVCAccepted:(ScribbleVC *)scribbleVC withStrokes:(NSArray *)strokes;
+-(void)scribbleVCAccepted:(ScribbleVC *)scribbleVC withStrokes:(NSDictionary *)strokes;
 -(void)scribbleVCCleared:(ScribbleVC *)scribbleVC;
--(void)scribbleVC:(ScribbleVC *)scribbleVC dataCopied:(NSArray *)strokes;
+-(void)scribbleVC:(ScribbleVC *)scribbleVC dataCopied:(NSDictionary *)strokes;
 
 @end

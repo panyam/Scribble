@@ -49,10 +49,13 @@ extern StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint location, CGFloat cre
 extern void StrokeRelease(Stroke *head);
 extern void StrokeSetLineColor(Stroke *stroke, CGColorRef newColor);
 extern void StrokeClear(Stroke *stroke);
+extern void StrokeRefresh(Stroke *stroke);
 
 typedef struct StrokeList {
     LinkedList *strokes;
     Stroke *currentStroke;
+    CGFloat minX, minY, maxX, maxY;
+	CGFloat maxLineWidth;
 } StrokeList;
 
 extern StrokeList *StrokeListNew();
@@ -60,6 +63,9 @@ extern void StrokeListClear(StrokeList *strokes);
 extern void StrokeListRelease(StrokeList *strokes);
 extern void StrokeListStartNewStroke(StrokeList *strokeList, CGColorRef lineColor, CGFloat lineWidth);
 extern void StrokeListDraw(StrokeList *list, CGContextRef context, CGFloat alpha);
+extern void StrokeListDetectBounds(StrokeList *strokes);
+extern void StrokeListTranslate(StrokeList *strokes, CGFloat deltaX, CGFloat deltaY);
+extern void StrokeListRefresh(StrokeList *strokes);
 
 /**
  * Serialize a stroke list into a given data buffer.

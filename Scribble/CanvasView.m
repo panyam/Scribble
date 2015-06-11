@@ -242,12 +242,18 @@
     return out;
 }
 
--(void)setStrokeData:(NSDictionary *)strokesArray
+-(void)setStrokeData:(NSDictionary *)strokesDict
 {
     [self clear];
     if (recordedStrokeList == NULL)
         recordedStrokeList = StrokeListNew();
-    StrokeListDeserialize((__bridge CFDictionaryRef)(strokesArray), recordedStrokeList);
+    StrokeListDeserialize((__bridge CFDictionaryRef)(strokesDict), recordedStrokeList);
+}
+
+-(void)crop
+{
+	StrokeListDetectBounds(recordedStrokeList);
+	StrokeListRefresh(recordedStrokeList);
 }
 
 @end

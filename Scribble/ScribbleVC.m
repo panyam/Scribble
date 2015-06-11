@@ -83,7 +83,7 @@
 
 -(IBAction)copyToClipboardClicked
 {
-    NSArray *strokes = self.canvasView.strokeData;
+    NSDictionary *strokes = self.canvasView.strokeData;
     NSString *stringToCopy = @"";
     if (strokes)
     {
