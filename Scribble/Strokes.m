@@ -46,11 +46,49 @@ StrokePoint StrokePointMake(CGPoint location, CGFloat timestamp)
 
 CGFloat CFNumberToFloat(CFNumberRef numberRef, CGFloat defaultValue)
 {
+    char bytes[32];
 	CGFloat out = defaultValue;
 	if (!numberRef)
 		return defaultValue;
-	if (!CFNumberGetValue(numberRef, CFNumberGetType(numberRef), &out))
-		out = defaultValue;
+    CFNumberType numberType = CFNumberGetType(numberRef);
+    Boolean result = CFNumberGetValue(numberRef, numberType, bytes);
+    if (!result)
+        return defaultValue;
+
+    switch (numberType)
+    {
+        case kCFNumberFloatType:
+        case kCFNumberFloat32Type:
+            out = ((float *)bytes)[0];
+            break ;
+        case kCFNumberDoubleType:
+        case kCFNumberFloat64Type:
+            out = ((double *)bytes)[0];
+            break ;
+        case kCFNumberShortType:
+            out = ((short *)bytes)[0];
+            break ;
+        case kCFNumberIntType:
+            out = ((int *)bytes)[0];
+            break ;
+        case kCFNumberLongType:
+            out = ((long *)bytes)[0];
+            break ;
+        case kCFNumberLongLongType:
+            out = ((long long *)bytes)[0];
+            break ;
+        case kCFNumberSInt16Type:
+            out = ((int16_t *)bytes)[0];
+            break ;
+        case kCFNumberSInt32Type:
+            out = ((int32_t *)bytes)[0];
+            break ;
+        case kCFNumberSInt64Type:
+            out = ((int64_t *)bytes)[0];
+            break ;
+        default:
+            return defaultValue;
+    }
 	return out;
 }
 
