@@ -288,6 +288,10 @@ void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef)
     if (strokeList == NULL || dataRef == NULL)
         return ;
 
+	CGFloat minX = INT_MAX;
+	CGFloat minY = INT_MAX;
+	CGFloat maxX = -INT_MAX;
+	CGFloat maxY = -INT_MAX;
     CFDataAppendString(dataRef, "{\"Strokes\": [");
     LinkedListIterate(strokeList->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
         Stroke *stroke = obj;
@@ -296,8 +300,29 @@ void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef)
             CFDataAppendString(dataRef, ",");
         }
         StrokeSerialize(stroke, dataRef);
+		if (stroke->minX < minX)
+			minX = stroke->minX
+		if (stroke->minY < minY)
+			minY = stroke->minY
+		if (stroke->maxX > maxX)
+			maxX = stroke->maxX
+		if (stroke->maxY > maxY)
+			maxY = stroke->maxY
     });
-    CFDataAppendString(dataRef, "]}");
+    CFDataAppendString(dataRef, "]");
+
+    // Write the bounding box
+    CFDataAppendString(dataRef, ",\"MinX\":");
+    CFDataAppendFloat(dataRef, minX, 2);
+    CFDataAppendString(dataRef, ",\"MinY\":");
+    CFDataAppendFloat(dataRef, minY, 2);
+    CFDataAppendString(dataRef, ",\"MaxX\":");
+    CFDataAppendFloat(dataRef, maxX, 2);
+    CFDataAppendString(dataRef, ",\"MaxY\":");
+    CFDataAppendFloat(dataRef, maxY, 2);
+	
+	// Finish
+    CFDataAppendString(dataRef, "}");
 }
 
 void StrokeSerialize(Stroke *stroke, CFMutableDataRef dataRef)
