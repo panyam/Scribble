@@ -25,7 +25,7 @@ static const CGFloat kPointMinDistanceSquared = kPointMinDistance * kPointMinDis
  */
 typedef struct StrokePoint {
     CGPoint location;
-    CGFloat createdAt;
+    CGFloat timestamp;
     BOOL startNewSubpath;
 } StrokePoint;
 

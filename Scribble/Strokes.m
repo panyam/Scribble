@@ -21,7 +21,7 @@ CFStringRef Key##key()                                                          
 
 KEY_MAKER(LineWidth)
 KEY_MAKER(LineColor)
-KEY_MAKER(StartsNew)
+KEY_MAKER(StartNew)
 KEY_MAKER(X)
 KEY_MAKER(Y)
 KEY_MAKER(MinX)
@@ -34,11 +34,11 @@ CGPoint midPoint(CGPoint p1, CGPoint p2) {
     return CGPointMake((p1.x + p2.x) * 0.5, (p1.y + p2.y) * 0.5);
 }
 
-StrokePoint StrokePointMake(CGPoint location, CGFloat createdAt)
+StrokePoint StrokePointMake(CGPoint location, CGFloat timestamp)
 {
     StrokePoint out;
     out.location = location;
-    out.createdAt = createdAt;
+    out.timestamp = timestamp;
     return out;
 }
 
@@ -92,7 +92,7 @@ void StrokeRelease(Stroke *stroke)
         free(stroke);
 }
 
-StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint point, CGFloat createdAt, BOOL newSubpath)
+StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint point, CGFloat timestamp, BOOL newSubpath)
 {
     // only add if new point or if distance is at least certain distance away
     CGPoint currentPoint = point;
@@ -139,7 +139,7 @@ StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint point, CGFloat createdAt, BO
 
     StrokePoint *newPoint = LinkedListAddObject(stroke->points, sizeof(StrokePoint));
     newPoint->location = point;
-    newPoint->createdAt = createdAt;
+    newPoint->timestamp = timestamp;
     newPoint->startNewSubpath = newSubpath;
 
     // to represent the finger movement, create a new path segment,
@@ -349,7 +349,7 @@ void StrokePointSerialize(StrokePoint *point, CFMutableDataRef dataRef)
     CFDataAppendString(dataRef, ",\"Y\":");
     CFDataAppendFloat(dataRef, point->location.y, 2);
     if (point->startNewSubpath)
-        CFDataAppendString(dataRef, ",\"StartsNew\":true");
+        CFDataAppendString(dataRef, ",\"StartNew\":true");
    CFDataAppendString(dataRef, "}");
 }
 
@@ -422,10 +422,10 @@ CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke)
         for (int i = 0;i < numPoints;i++)
         {
             CFDictionaryRef pointDict = CFArrayGetValueAtIndex(pointsObj, i);
-
 			StrokePoint point;
+
 			StrokePointDeserialize(pointDict, &point);
-			StrokeAddPoint(stroke, point->location, point->createdAt, point->startsNew);
+			StrokeAddPoint(stroke, point.location, point.timestamp, point.startNewSubpath);
         }
     }
     return NULL;
@@ -440,14 +440,14 @@ CFErrorRef StrokePointDeserialize(CFDictionaryRef dict, StrokePoint *point)
     {
         CFNumberRef xObj = CFDictionaryGetValue(dict, KeyX());
         CFNumberRef yObj = CFDictionaryGetValue(dict, KeyY());
-        CFNumberRef startsNewObj = CFDictionaryGetValue(dict, KeyStartsNew());
+        CFNumberRef startNewObj = CFDictionaryGetValue(dict, KeyStartNew());
 		point->location.x = CFNumberToFloat(xObj, 0);
 		point->location.y = CFNumberToFloat(yObj, 0);
-		point->startsNewSubpath = NO;
+		point->startNewSubpath = NO;
 
-		if (startsNewObj)
+		if (startNewObj)
 		{
-			CFNumberGetValue(startsNewObj, CFNumberGetType(startsNewObj), &point->startsNewSubpath);
+			CFNumberGetValue(startNewObj, CFNumberGetType(startNewObj), &point->startNewSubpath);
 		}
     }
     return NULL;
