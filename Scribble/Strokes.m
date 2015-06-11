@@ -29,6 +29,7 @@ KEY_MAKER(MinY)
 KEY_MAKER(MaxX)
 KEY_MAKER(MaxY)
 KEY_MAKER(Points)
+KEY_MAKER(Strokes)
 
 CGPoint midPoint(CGPoint p1, CGPoint p2) {
     return CGPointMake((p1.x + p2.x) * 0.5, (p1.y + p2.y) * 0.5);
@@ -287,7 +288,7 @@ void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef)
     if (strokeList == NULL || dataRef == NULL)
         return ;
 
-    CFDataAppendString(dataRef, "[");
+    CFDataAppendString(dataRef, "{\"Strokes\": [");
     LinkedListIterate(strokeList->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
         Stroke *stroke = obj;
         if (idx > 0)
@@ -296,7 +297,7 @@ void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef)
         }
         StrokeSerialize(stroke, dataRef);
     });
-    CFDataAppendString(dataRef, "]");
+    CFDataAppendString(dataRef, "]}");
 }
 
 void StrokeSerialize(Stroke *stroke, CFMutableDataRef dataRef)
@@ -356,16 +357,17 @@ void StrokePointSerialize(StrokePoint *point, CFMutableDataRef dataRef)
 /**
  * Deserialize a stroke list from a list object.
  */
-CFErrorRef StrokeListDeserialize(CFArrayRef array, StrokeList *strokeList)
+CFErrorRef StrokeListDeserialize(CFDictionaryRef dict, StrokeList *strokeList)
 {
-    if (array != NULL)
+    if (dict != NULL)
     {
-        CFIndex count = CFArrayGetCount(array);
+        CFArrayRef strokesObj = CFDictionaryGetValue(dict, KeyStrokes());
+        CFIndex count = CFArrayGetCount(strokesObj);
         for (int i = 0;i < count;i++)
         {
             StrokeListStartNewStroke(strokeList, 0, 0);
 
-            CFDictionaryRef strokeDict = CFArrayGetValueAtIndex(array, i);
+            CFDictionaryRef strokeDict = CFArrayGetValueAtIndex(strokesObj, i);
             StrokeDeserialize(strokeDict, strokeList->currentStroke);
         }
     }

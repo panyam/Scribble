@@ -75,7 +75,7 @@ extern void StrokePointSerialize(StrokePoint *point, CFMutableDataRef dataRef);
 /**
  * Deserialize a stroke list from a list object.
  */
-extern CFErrorRef StrokeListDeserialize(CFArrayRef array, StrokeList *strokeList);
+extern CFErrorRef StrokeListDeserialize(CFDictionaryRef dict, StrokeList *strokeList);
 /**
  * Deserialize a stroke from a dictionary of its attribute values.
  */
