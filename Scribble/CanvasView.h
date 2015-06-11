@@ -12,6 +12,7 @@
 
 @property (nonatomic, readonly) UIColor *currLineColor;
 @property (nonatomic, readonly) CGFloat currLineWidth;
+@property (nonatomic) NSArray *strokeData;
 
 -(void)startNewStrokeWithColor:(UIColor *)lineColor withWidth:(CGFloat)lineWidth;
 -(void)clear;

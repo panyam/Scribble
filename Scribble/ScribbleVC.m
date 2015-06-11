@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 osb. All rights reserved.
 //
 
-#import "ScribbleVC.h"
+#import "Scribble.h"
 
 @interface ScribbleVC ()
 
@@ -56,6 +56,9 @@
 
 -(IBAction)playButtonClicked:(id)sender
 {
+    NSArray *strokes = self.canvasView.strokeData;
+    NSLog(@"Strokes: ", strokes);
+
     if ([((UIButton *)sender).titleLabel.text isEqualToString:@"Play"])
     {
         [self.canvasView startPlaying:YES];

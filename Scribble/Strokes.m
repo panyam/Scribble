@@ -236,7 +236,7 @@ void CFDataAppendFloat(CFMutableDataRef dataRef, CGFloat value, int numPlaces)
     char format[32];
     sprintf(format, "%%.%df", numPlaces);
     char buffer[32];
-    sprintf(buffer, format, (long)value);
+    sprintf(buffer, format, value);
     CFDataAppendString(dataRef, buffer);
 }
 
@@ -321,6 +321,14 @@ void StrokePointSerialize(StrokePoint *point, CFMutableDataRef dataRef)
  */
 CFErrorRef StrokeListDeserialize(CFArrayRef array, StrokeList *strokeList)
 {
+    CFIndex count = CFArrayGetCount(array);
+    for (int i = 0;i < count;i++)
+    {
+        StrokeListStartNewStroke(strokeList, 0, 0);
+
+        CFDictionaryRef strokeDict = CFArrayGetValueAtIndex(array, i);
+        StrokeDeserialize(strokeDict, strokeList->currentStroke);
+    }
     return NULL;
 }
 
@@ -329,6 +337,13 @@ CFErrorRef StrokeListDeserialize(CFArrayRef array, StrokeList *strokeList)
  */
 CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke)
 {
+    const void *lineWidthObj = CFDictionaryGetValue(dict, "LineWidth");
+    const void *lineColorObj = CFDictionaryGetValue(dict, "LineColor");
+    const void *minXObj = CFDictionaryGetValue(dict, "MinX");
+    const void *minYObj = CFDictionaryGetValue(dict, "MinY");
+    const void *maxXObj = CFDictionaryGetValue(dict, "MaxX");
+    const void *maxYObj = CFDictionaryGetValue(dict, "MaxY");
+    const void *pointsObj = CFDictionaryGetValue(dict, "Points");
     return NULL;
 }
 

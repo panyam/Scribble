@@ -228,4 +228,24 @@
     return YES;
 }
 
+-(NSArray *)strokeData
+{
+    CFMutableDataRef dataRef = CFDataCreateMutable(NULL, 0);
+    StrokeListSerialize(recordedStrokeList, dataRef);
+    NSMutableData *data = (__bridge NSMutableData *)(dataRef);
+    NSError *error = nil;
+    NSArray *out = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    if (error)
+    {
+        NSLog(@"Error: %@", error);
+    }
+    return out;
+}
+
+-(void)setStrokeData:(NSArray *)strokesArray
+{
+    [self clear];
+    StrokeListDeserialize((__bridge CFArrayRef)(strokesArray), recordedStrokeList);
+}
+
 @end

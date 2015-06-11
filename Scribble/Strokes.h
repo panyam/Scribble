@@ -67,6 +67,10 @@ extern void StrokeListDraw(StrokeList *list, CGContextRef context, CGFloat alpha
 extern void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef);
 extern void StrokeSerialize(Stroke *stroke, CFMutableDataRef dataRef);
 extern void StrokePointSerialize(StrokePoint *point, CFMutableDataRef dataRef);
+//
+//extern CFArrayRef StrokeListToArray(StrokeList *strokeList);
+//extern CFDictionaryRef StrokeToDict(Stroke *stroke);
+//extern CFDictionaryRef StrokePointToDict(StrokePoint *point);
 
 /**
  * Deserialize a stroke list from a list object.
