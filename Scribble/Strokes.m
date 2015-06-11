@@ -290,7 +290,7 @@ void StrokeListStartNewStroke(StrokeList *strokeList, CGColorRef lineColor, CGFl
     StrokeSetLineColor(strokeList->currentStroke, lineColor);
 }
 
-void StrokeListDraw(StrokeList *strokeList, CGContextRef context, CGFloat alpha)
+void StrokeListDraw(StrokeList *strokeList, CGContextRef context, CGFloat alpha, CGPoint translateBy)
 {
     if (!strokeList)
         return ;
@@ -315,7 +315,15 @@ void StrokeListDraw(StrokeList *strokeList, CGContextRef context, CGFloat alpha)
         }
         CGContextSetStrokeColorWithColor(context, lineColor);
         CGContextSetLineCap(context, kCGLineCapRound);
-        CGContextAddPath(context, stroke->pathRef);
+        if (translateBy.x == 0 && translateBy.y == 0)
+        {
+            CGContextAddPath(context, stroke->pathRef);
+        } else {
+            // translate first
+            CGAffineTransform translation = CGAffineTransformMakeTranslation(translateBy.x, translateBy.y);
+            CGPathRef movedPath = CGPathCreateCopyByTransformingPath(stroke->pathRef, &translation);
+            CGContextAddPath(context, movedPath);
+        }
         CGContextStrokePath(context);
     });
 }

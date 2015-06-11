@@ -55,6 +55,7 @@
     self.currLineColor = DEFAULT_LINE_COLOR;
     self.currLineWidth = DEFAULT_LINE_WIDTH;
     recordedStrokeList = NULL;
+//    self.translateBy = CGPointMake(-20, -20);
     [self clear];
 }
 
@@ -143,17 +144,17 @@
 
     if (inPlaybackMode)
     {
-        StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), 0.1);
-        StrokeListDraw(playbackStrokeList, UIGraphicsGetCurrentContext(), 1);
+        StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), 0.1, self.translateBy);
+        StrokeListDraw(playbackStrokeList, UIGraphicsGetCurrentContext(), 1, self.translateBy);
     } else {
-        StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), 1);
+        StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), 1, self.translateBy);
     }
 }
 
 #pragma mark Touch event handlers
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (!inPlaybackMode)
+    if (!inPlaybackMode || !self.disableTouches)
     {
         if (recordedStrokeList == NULL)
         {
@@ -167,7 +168,7 @@
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (!inPlaybackMode)
+    if (!inPlaybackMode || !self.disableTouches)
     {
         UITouch *touch = [touches anyObject];
         CGPoint point = [touch locationInView:self];
@@ -228,6 +229,12 @@
     return YES;
 }
 
+-(void)setTranslateBy:(CGPoint)translateBy_
+{
+    _translateBy = translateBy_;
+    [self setNeedsDisplay];
+}
+
 -(NSDictionary *)strokeData
 {
     CFMutableDataRef dataRef = CFDataCreateMutable(NULL, 0);
@@ -248,12 +255,7 @@
     if (recordedStrokeList == NULL)
         recordedStrokeList = StrokeListNew();
     StrokeListDeserialize((__bridge CFDictionaryRef)(strokesDict), recordedStrokeList);
-}
-
--(void)crop
-{
-	StrokeListDetectBounds(recordedStrokeList);
-	StrokeListRefresh(recordedStrokeList);
+    StrokeListDetectBounds(recordedStrokeList);
 }
 
 @end

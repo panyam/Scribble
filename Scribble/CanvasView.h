@@ -10,11 +10,12 @@
 
 @interface CanvasView : UIView
 
+@property (nonatomic) BOOL disableTouches;
 @property (nonatomic, readonly) UIColor *currLineColor;
 @property (nonatomic, readonly) CGFloat currLineWidth;
 @property (nonatomic) NSDictionary *strokeData;
+@property (nonatomic) CGPoint translateBy;
 
--(void)crop;
 -(void)startNewStrokeWithColor:(UIColor *)lineColor withWidth:(CGFloat)lineWidth;
 -(void)clear;
 -(void)startPlaying:(BOOL)restart;
