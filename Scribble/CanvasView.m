@@ -205,7 +205,6 @@
     if (recordedStrokeList == NULL)
         return NO;
 
-    NSLog(@"Incrementing Position");
     if (strokeIterator == NULL)
         strokeIterator = LinkedListIteratorNew(recordedStrokeList->strokes);
     if (strokeIterator == NULL)
