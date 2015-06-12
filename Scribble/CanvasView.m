@@ -245,7 +245,7 @@
             // just start a new stroke
             Stroke *currStroke = (Stroke *)LinkedListIteratorValue(strokeIterator);
             StrokeListStartNewStroke(playbackStrokeList, currStroke->lineWidth,
-                                     currStroke>red, currStroke->green, currStroke->blue, currStroke->alpha);
+                                     currStroke->red, currStroke->green, currStroke->blue, currStroke->alpha);
             LinkedListIteratorRelease(pointIterator);
             pointIterator = NULL;
         }
