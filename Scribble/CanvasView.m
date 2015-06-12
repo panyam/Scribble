@@ -315,17 +315,7 @@
 
 -(IBAction)copyToClipboardClicked
 {
-    NSDictionary *strokes = self.strokeData;
-    NSString *stringToCopy = @"";
-    if (strokes)
-    {
-        NSError *error = nil;
-        NSData *data = [NSJSONSerialization dataWithJSONObject:strokes options:NSJSONWritingPrettyPrinted error:&error];
-        if (error)
-            NSLog(@"Copy Error: %@", error);
-        stringToCopy = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    }
-    [UIPasteboard generalPasteboard].string = stringToCopy;
+    NSDictionary *strokes = [self copyToClipboard];
     if ([self.canvasDelegate respondsToSelector:@selector(canvasView:dataCopied:)])
     {
         [self.canvasDelegate canvasView:self dataCopied:strokes];
@@ -377,6 +367,22 @@
         [self setNeedsLayout];
     }
     return _toClipboardButton;
+}
+
+-(NSDictionary *)copyToClipboard
+{
+    NSDictionary *strokes = self.strokeData;
+    NSString *stringToCopy = @"";
+    if (strokes)
+    {
+        NSError *error = nil;
+        NSData *data = [NSJSONSerialization dataWithJSONObject:strokes options:NSJSONWritingPrettyPrinted error:&error];
+        if (error)
+            NSLog(@"Copy Error: %@", error);
+        stringToCopy = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    }
+    [UIPasteboard generalPasteboard].string = stringToCopy;
+    return strokes;
 }
 
 @end

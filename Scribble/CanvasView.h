@@ -57,5 +57,6 @@
 -(void)startPlaying:(BOOL)restart;
 -(void)stopPlaying:(BOOL)finish;
 -(void)togglePlaying;
+-(NSDictionary *)copyToClipboard;
 
 @end
