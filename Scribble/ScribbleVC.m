@@ -35,6 +35,10 @@
 -(IBAction)colorPickerButtonClicked
 {
     self.colorPickerView.hidden = !self.colorPickerView.hidden;
+    self.acceptButton.enabled = self.colorPickerView.hidden;
+    self.cancelButton.enabled = self.colorPickerView.hidden;
+    self.clearButton.enabled = self.colorPickerView.hidden;
+    self.pasteButton.enabled = self.colorPickerView.hidden;
 }
 
 -(IBAction)barButtonItemClicked:(id)sender
