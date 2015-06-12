@@ -107,7 +107,9 @@
         self.currLineColor = lineColor;
     if (recordedStrokeList == NULL)
         recordedStrokeList = StrokeListNew();
-    StrokeListStartNewStroke(recordedStrokeList, self.currLineColor.CGColor, self.currLineWidth);
+    CGFloat red, green, blue, alpha;
+    [self.currLineColor getRed:&red green:&green blue:&blue alpha:&alpha];
+    StrokeListStartNewStroke(recordedStrokeList, self.currLineWidth, red, green, blue, alpha);
     [self setNeedsDisplay];
 }
 
@@ -242,7 +244,8 @@
             // next iteration will set the pointIterator again but
             // just start a new stroke
             Stroke *currStroke = (Stroke *)LinkedListIteratorValue(strokeIterator);
-            StrokeListStartNewStroke(playbackStrokeList, currStroke->lineColor, currStroke->lineWidth);
+            StrokeListStartNewStroke(playbackStrokeList, currStroke->lineWidth,
+                                     currStroke>red, currStroke->green, currStroke->blue, currStroke->alpha);
             LinkedListIteratorRelease(pointIterator);
             pointIterator = NULL;
         }
