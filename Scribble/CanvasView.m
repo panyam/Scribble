@@ -142,6 +142,11 @@
 
 #pragma Stroke Animations
 
+-(void)togglePlaying
+{
+	[self playButtonClicked:self.playButton];
+}
+
 -(void)startPlaying:(BOOL)restart {
     NSLog(@"Starting Playback, Restarting: %@", restart ? @"YES" : @"NO");
     [self.playerTimer invalidate];

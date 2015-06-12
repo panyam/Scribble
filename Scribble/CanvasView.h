@@ -56,5 +56,6 @@
 -(void)clear;
 -(void)startPlaying:(BOOL)restart;
 -(void)stopPlaying:(BOOL)finish;
+-(void)togglePlaying;
 
 @end
