@@ -228,9 +228,9 @@ void StrokeSetLineColor(Stroke *stroke, CGColorRef newColor)
 {
     if (stroke && stroke->lineColor != newColor)
     {
+        CGColorRetain(newColor);
         CGColorRelease(stroke->lineColor);
         stroke->lineColor = newColor;
-        CGColorRetain(newColor);
     }
 }
 
