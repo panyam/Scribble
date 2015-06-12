@@ -107,7 +107,7 @@ void StrokeInit(Stroke *stroke)
     stroke->points = LinkedListNew();
     stroke->pathRef = CGPathCreateMutable();
     stroke->lineWidth = DEFAULT_LINE_WIDTH;
-    stroke->lineColor = DEFAULT_LINE_COLOR.CGColor;
+    [DEFAULT_LINE_COLOR getRed:&stroke->red green:&stroke->green blue:&stroke->blue alpha:&stroke->alpha];
     stroke->minX = INT_MAX;
     stroke->minY = INT_MAX;
     stroke->maxX = 0;
@@ -224,13 +224,14 @@ BOOL StrokeIsEmpty(Stroke *stroke)
     return stroke == NULL || stroke->points == NULL || LinkedListHead(stroke->points) == NULL;
 }
 
-void StrokeSetLineColor(Stroke *stroke, CGColorRef newColor)
+void StrokeSetLineColor(Stroke *stroke, CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha)
 {
-    if (stroke && stroke->lineColor != newColor)
+    if (stroke)
     {
-        CGColorRetain(newColor);
-        CGColorRelease(stroke->lineColor);
-        stroke->lineColor = newColor;
+        stroke->red = red;
+        stroke->green = green;
+        stroke->blue = blue;
+        stroke->alpha = alpha;
     }
 }
 
@@ -311,12 +312,10 @@ void StrokeListTranslate(StrokeList *strokes, CGFloat deltaX, CGFloat deltaY)
 	});
 }
 
-void StrokeListStartNewStroke(StrokeList *strokeList, CGColorRef lineColor, CGFloat lineWidth)
+void StrokeListStartNewStroke(StrokeList *strokeList, CGFloat lineWidth, CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha)
 {
     if (lineWidth <= 0)
         lineWidth = DEFAULT_LINE_WIDTH;
-    if (lineColor == 0)
-        lineColor = DEFAULT_LINE_COLOR.CGColor;
     // only add a new stroke if the current stroke is *not* empty
     if (strokeList->currentStroke == NULL || !StrokeIsEmpty(strokeList->currentStroke))
     {
@@ -324,7 +323,7 @@ void StrokeListStartNewStroke(StrokeList *strokeList, CGColorRef lineColor, CGFl
         StrokeInit(strokeList->currentStroke);
     }
     strokeList->currentStroke->lineWidth = lineWidth;
-    StrokeSetLineColor(strokeList->currentStroke, lineColor);
+    StrokeSetLineColor(strokeList->currentStroke, red, green, blue, alpha);
 }
 
 void StrokeListDraw(StrokeList *strokeList, CGContextRef context, CGFloat alpha, CGPoint translateBy)
@@ -335,22 +334,11 @@ void StrokeListDraw(StrokeList *strokeList, CGContextRef context, CGFloat alpha,
     LinkedListIterate(strokeList->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
         Stroke *stroke = obj;
         CGContextSetLineWidth(context, stroke->lineWidth);
-        CGColorRef lineColor = stroke->lineColor;
+        CGFloat newAlpha = stroke->alpha;
         if (alpha > 0)  // needs alpha dimming
-        {
-            size_t numComponents = CGColorGetNumberOfComponents(stroke->lineColor);
-            const CGFloat *comps = CGColorGetComponents(stroke->lineColor);
-            UIColor *color = nil;
-            if (numComponents == 2)
-            {
-                color = [UIColor colorWithRed:comps[0] green:comps[0] blue:comps[0] alpha:alpha];
-            } else
-            {
-                color = [UIColor colorWithRed:comps[0] green:comps[1] blue:comps[2] alpha:alpha];
-            }
-            lineColor = color.CGColor;
-        }
-        CGContextSetStrokeColorWithColor(context, lineColor);
+            newAlpha = alpha;
+        UIColor *lineColor = [UIColor colorWithRed:stroke->red green:stroke->green blue:stroke->blue alpha:newAlpha];
+        CGContextSetStrokeColorWithColor(context, lineColor.CGColor);
         CGContextSetLineCap(context, kCGLineCapRound);
         if (translateBy.x == 0 && translateBy.y == 0)
         {
@@ -434,14 +422,13 @@ void StrokeSerialize(Stroke *stroke, CFMutableDataRef dataRef)
 
     CFDataAppendString(dataRef, ",\"LineColor\":");
     CFDataAppendString(dataRef, "[");
-    size_t numComponents = CGColorGetNumberOfComponents(stroke->lineColor);
-    const CGFloat *colorComps = CGColorGetComponents(stroke->lineColor);
-    for (int i = 0;i < numComponents;i++)
-    {
-        if (i > 0)
-            CFDataAppendString(dataRef, ",");
-        CFDataAppendFloat(dataRef, colorComps[i], 3);
-    }
+    CFDataAppendFloat(dataRef, stroke->red, 3);
+    CFDataAppendString(dataRef, ",");
+    CFDataAppendFloat(dataRef, stroke->green, 3);
+    CFDataAppendString(dataRef, ",");
+    CFDataAppendFloat(dataRef, stroke->blue, 3);
+    CFDataAppendString(dataRef, ",");
+    CFDataAppendFloat(dataRef, stroke->alpha, 3);
     CFDataAppendString(dataRef, "]");
 
     // Write the bounding box
@@ -490,7 +477,7 @@ CFErrorRef StrokeListDeserialize(CFDictionaryRef dict, StrokeList *strokeList)
         CFIndex count = CFArrayGetCount(strokesObj);
         for (int i = 0;i < count;i++)
         {
-            StrokeListStartNewStroke(strokeList, 0, 0);
+            StrokeListStartNewStroke(strokeList, 0, 1, 1, 1, 1);
 
             CFDictionaryRef strokeDict = CFArrayGetValueAtIndex(strokesObj, i);
             StrokeDeserialize(strokeDict, strokeList->currentStroke);
@@ -527,8 +514,7 @@ CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke)
 			CFNumberRef alpha = CFArrayGetValueAtIndex(lineColorObj, 1);
 			CGFloat colorValue = CFNumberToFloat(color, 0);
 			CGFloat alphaValue = CFNumberToFloat(alpha, 1);
-			UIColor *uiColor = [UIColor colorWithRed:colorValue green:colorValue blue:colorValue alpha:alphaValue];
-			StrokeSetLineColor(stroke, uiColor.CGColor);
+            StrokeSetLineColor(stroke, colorValue, colorValue, colorValue, alphaValue);
 		} else if (numColors == 4)
 		{
 			CFNumberRef red = CFArrayGetValueAtIndex(lineColorObj, 0);
@@ -540,9 +526,7 @@ CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke)
 			CGFloat greenValue = CFNumberToFloat(green, 0);
 			CGFloat blueValue = CFNumberToFloat(blue, 0);
 			CGFloat alphaValue = CFNumberToFloat(alpha, 1);
-
-			UIColor *uiColor = [UIColor colorWithRed:redValue green:greenValue blue:blueValue alpha:alphaValue];
-			StrokeSetLineColor(stroke, uiColor.CGColor);
+            StrokeSetLineColor(stroke, redValue, greenValue, blueValue, alphaValue);
 		}
 
         CFIndex numPoints = CFArrayGetCount(pointsObj);

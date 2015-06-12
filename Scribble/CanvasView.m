@@ -222,7 +222,8 @@
     if (playbackStrokeList == NULL)
     {
         playbackStrokeList = StrokeListNew();
-        StrokeListStartNewStroke(playbackStrokeList, currStroke->lineColor, currStroke->lineWidth);
+        StrokeListStartNewStroke(playbackStrokeList, currStroke->lineWidth,
+                                 currStroke->red, currStroke->green, currStroke->blue, currStroke->alpha);
     }
 
     // add this point to the playback strokes

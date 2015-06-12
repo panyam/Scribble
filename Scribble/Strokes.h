@@ -35,8 +35,8 @@ typedef struct StrokePoint {
 typedef struct Stroke {
     LinkedList *points;
     CGMutablePathRef pathRef;
-    CGColorRef lineColor;
     CGFloat lineWidth;
+    CGFloat red, green, blue, alpha;
     CGFloat minX, minY, maxX, maxY;
 } Stroke;
 
@@ -47,7 +47,7 @@ extern void StrokeInit(Stroke *stroke);
 extern BOOL StrokeIsEmpty(Stroke *stroke);
 extern StrokePoint *StrokeAddPoint(Stroke *stroke, CGPoint location, CGFloat createdAt, BOOL newSubpath);
 extern void StrokeRelease(Stroke *head);
-extern void StrokeSetLineColor(Stroke *stroke, CGColorRef newColor);
+extern void StrokeSetLineColor(Stroke *stroke, CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha);
 extern void StrokeClear(Stroke *stroke);
 //extern void StrokeRefresh(Stroke *stroke);
 
@@ -61,7 +61,8 @@ typedef struct StrokeList {
 extern StrokeList *StrokeListNew();
 extern void StrokeListClear(StrokeList *strokes);
 extern void StrokeListRelease(StrokeList *strokes);
-extern void StrokeListStartNewStroke(StrokeList *strokeList, CGColorRef lineColor, CGFloat lineWidth);
+extern void StrokeListStartNewStroke(StrokeList *strokeList, CGFloat lineWidth,
+                                     CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha);
 extern void StrokeListDraw(StrokeList *list, CGContextRef context, CGFloat alpha, CGPoint translateBy);
 extern void StrokeListDetectBounds(StrokeList *strokes);
 extern void StrokeListTranslate(StrokeList *strokes, CGFloat deltaX, CGFloat deltaY);
