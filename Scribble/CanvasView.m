@@ -148,7 +148,6 @@
 }
 
 -(void)startPlaying:(BOOL)restart {
-    NSLog(@"Starting Playback, Restarting: %@", restart ? @"YES" : @"NO");
     [self.playerTimer invalidate];
     self.playerTimer = nil;
     if (restart)
@@ -166,7 +165,6 @@
 }
 
 -(void)stopPlaying:(BOOL)finish {
-    NSLog(@"Stopping Playback, Finishing: %@", finish ? @"YES" : @"NO");
     [self.playerTimer invalidate];
     self.playerTimer = nil;
     if (finish)
