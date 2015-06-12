@@ -268,31 +268,31 @@ void StrokeListRefresh(StrokeList *strokes)
 	});
 }
 
-void StrokeListDetectBounds(StrokeList *strokes)
+void StrokeListDetectBounds(StrokeList *strokeList)
 {
-	strokes->minX = INT_MAX;
-	strokes->minY = INT_MAX;
-	strokes->maxX = -INT_MAX;
-	strokes->maxY = -INT_MAX;
-	strokes->maxLineWidth = DEFAULT_LINE_WIDTH;
-    LinkedListIterate(strokes->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
+	strokeList->minX = INT_MAX;
+	strokeList->minY = INT_MAX;
+	strokeList->maxX = -INT_MAX;
+	strokeList->maxY = -INT_MAX;
+	strokeList->maxLineWidth = DEFAULT_LINE_WIDTH;
+    LinkedListIterate(strokeList->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
         Stroke *stroke = obj;
-		if (stroke->minX < strokes->minX)
-			strokes->minX = stroke->minX;
-		if (stroke->minY < strokes->minY)
-			strokes->minY = stroke->minY;
-		if (stroke->maxX > strokes->maxX)
-			strokes->maxX = stroke->maxX;
-		if (stroke->maxY > strokes->maxY)
-			strokes->maxY = stroke->maxY;
-		if (stroke->lineWidth > strokes->maxLineWidth)
-			strokes->maxLineWidth = stroke->lineWidth;
+		if (stroke->minX < strokeList->minX)
+			strokeList->minX = stroke->minX;
+		if (stroke->minY < strokeList->minY)
+			strokeList->minY = stroke->minY;
+		if (stroke->maxX > strokeList->maxX)
+			strokeList->maxX = stroke->maxX;
+		if (stroke->maxY > strokeList->maxY)
+			strokeList->maxY = stroke->maxY;
+		if (stroke->lineWidth > strokeList->maxLineWidth)
+			strokeList->maxLineWidth = stroke->lineWidth;
 	});
 	// Add some buffer
-	strokes->minX -= strokes->maxLineWidth * 2;
-	strokes->minY -= strokes->maxLineWidth * 2;
-	strokes->maxX += strokes->maxLineWidth * 2;
-	strokes->maxY += strokes->maxLineWidth * 2;
+	strokeList->minX -= strokeList->maxLineWidth * 2;
+	strokeList->minY -= strokeList->maxLineWidth * 2;
+	strokeList->maxX += strokeList->maxLineWidth * 2;
+	strokeList->maxY += strokeList->maxLineWidth * 2;
 }
 
 void StrokeListTranslate(StrokeList *strokes, CGFloat deltaX, CGFloat deltaY)
