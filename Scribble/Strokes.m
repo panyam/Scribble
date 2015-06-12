@@ -110,8 +110,8 @@ void StrokeInit(Stroke *stroke)
     stroke->lineColor = DEFAULT_LINE_COLOR.CGColor;
     stroke->minX = INT_MAX;
     stroke->minY = INT_MAX;
-    stroke->maxX = -INT_MAX;
-    stroke->maxY = -INT_MAX;
+    stroke->maxX = 0;
+    stroke->maxY = 0;
 }
 
 void StrokeClear(Stroke *stroke)
@@ -272,8 +272,8 @@ void StrokeListDetectBounds(StrokeList *strokeList)
 {
 	strokeList->minX = INT_MAX;
 	strokeList->minY = INT_MAX;
-	strokeList->maxX = -INT_MAX;
-	strokeList->maxY = -INT_MAX;
+	strokeList->maxX = 0;
+	strokeList->maxY = 0;
 	strokeList->maxLineWidth = DEFAULT_LINE_WIDTH;
     LinkedListIterate(strokeList->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
         Stroke *stroke = obj;
@@ -321,8 +321,7 @@ void StrokeListStartNewStroke(StrokeList *strokeList, CGColorRef lineColor, CGFl
     if (strokeList->currentStroke == NULL || !StrokeIsEmpty(strokeList->currentStroke))
     {
         strokeList->currentStroke = LinkedListAddObject(strokeList->strokes, sizeof(Stroke));
-        strokeList->currentStroke->points = LinkedListNew();
-        strokeList->currentStroke->pathRef = CGPathCreateMutable();
+        StrokeInit(strokeList->currentStroke);
     }
     strokeList->currentStroke->lineWidth = lineWidth;
     StrokeSetLineColor(strokeList->currentStroke, lineColor);
@@ -518,8 +517,8 @@ CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke)
 		stroke->lineWidth = CFNumberToFloat(lineWidthObj, DEFAULT_LINE_WIDTH);
 		stroke->minX = CFNumberToFloat(minXObj, INT_MAX);
 		stroke->minY = CFNumberToFloat(minYObj, INT_MAX);
-		stroke->maxX = CFNumberToFloat(maxXObj, -INT_MAX);
-		stroke->maxY = CFNumberToFloat(maxYObj, -INT_MAX);
+		stroke->maxX = CFNumberToFloat(maxXObj, 0);
+		stroke->maxY = CFNumberToFloat(maxYObj, 0);
 
         CFIndex numColors = CFArrayGetCount(lineColorObj);
 		if (numColors == 2)
