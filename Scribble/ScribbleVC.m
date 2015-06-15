@@ -10,8 +10,10 @@
 
 @interface ScribbleVC ()
 
+@property (nonatomic) BOOL lineColorPickerSelected;
 @property (nonatomic, weak) IBOutlet UIButton *clearButton;
-@property (nonatomic, weak) IBOutlet UIButton *colorPickerButton;
+@property (nonatomic, weak) IBOutlet UIButton *lineColorPickerButton;
+@property (nonatomic, weak) IBOutlet UIButton *bgColorPickerButton;
 @property (nonatomic, weak) IBOutlet HRColorPickerView *colorPickerView;
 @property (nonatomic, weak) IBOutlet NSLayoutConstraint *colorPickerLeftConstraint;
 @property (nonatomic, weak) IBOutlet NSLayoutConstraint *colorPickerTopConstraint;
@@ -32,8 +34,10 @@
     [self.colorPickerView setColor:[UIColor redColor]];
 }
 
--(IBAction)colorPickerButtonClicked
+-(IBAction)colorPickerButtonClicked:(id)sender
 {
+    self.lineColorPickerSelected = (sender == self.lineColorPickerButton);
+
     self.colorPickerView.hidden = !self.colorPickerView.hidden;
     self.acceptButton.enabled = self.colorPickerView.hidden;
     self.cancelButton.enabled = self.colorPickerView.hidden;
@@ -70,8 +74,16 @@
 
 -(IBAction)colorPickerViewValueChanged:(id)sender
 {
-    self.colorPickerButton.backgroundColor = self.colorPickerView.color;
-    [self.canvasView startNewStrokeWithColor:self.colorPickerView.color withWidth:-1];
+    if (self.lineColorPickerSelected)
+    {
+        self.lineColorPickerButton.backgroundColor = self.colorPickerView.color;
+        [self.canvasView startNewStrokeWithColor:self.colorPickerView.color withWidth:-1];
+    }
+    else
+    {
+        self.bgColorPickerButton.backgroundColor = self.colorPickerView.color;
+        self.canvasView.backgroundColor = self.colorPickerView.color;
+    }
 }
 
 #pragma CanvasViewDelegate methods
@@ -80,14 +92,16 @@
 {
     self.clearButton.enabled = NO;
     self.pasteButton.enabled = NO;
-    self.colorPickerButton.enabled = NO;
+    self.lineColorPickerButton.enabled = NO;
+    self.bgColorPickerButton.enabled = NO;
 }
 
 -(void)canvasViewAnimationStopped:(CanvasView *)canvasView
 {
     self.clearButton.enabled = YES;
     self.pasteButton.enabled = YES;
-    self.colorPickerButton.enabled = YES;
+    self.lineColorPickerButton.enabled = YES;
+    self.bgColorPickerButton.enabled = YES;
 }
 
 @end

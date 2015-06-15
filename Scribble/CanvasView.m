@@ -106,7 +106,13 @@
     if (lineColor != nil)
         self.currLineColor = lineColor;
     if (recordedStrokeList == NULL)
+    {
         recordedStrokeList = StrokeListNew();
+        [self.backgroundColor getRed:&recordedStrokeList->bgRed
+                               green:&recordedStrokeList->bgGreen
+                                blue:&recordedStrokeList->bgBlue
+                               alpha:&recordedStrokeList->bgAlpha];
+    }
     CGFloat red, green, blue, alpha;
     [self.currLineColor getRed:&red green:&green blue:&blue alpha:&alpha];
     StrokeListStartNewStroke(recordedStrokeList, self.currLineWidth, red, green, blue, alpha);
@@ -117,6 +123,21 @@
 {
     _translateBy = translateBy_;
     [self setNeedsDisplay];
+}
+
+-(void)setBackgroundColor:(UIColor *)backgroundColor
+{
+    if (backgroundColor)
+    {
+        if (recordedStrokeList)
+        {
+            [backgroundColor getRed:&recordedStrokeList->bgRed
+                              green:&recordedStrokeList->bgGreen
+                               blue:&recordedStrokeList->bgBlue
+                              alpha:&recordedStrokeList->bgAlpha];
+        }
+    }
+    [super setBackgroundColor:backgroundColor];
 }
 
 -(NSDictionary *)strokeData
@@ -137,7 +158,13 @@
 {
     [self clear];
     if (recordedStrokeList == NULL)
+    {
         recordedStrokeList = StrokeListNew();
+        [self.backgroundColor getRed:&recordedStrokeList->bgRed
+                               green:&recordedStrokeList->bgGreen
+                                blue:&recordedStrokeList->bgBlue
+                               alpha:&recordedStrokeList->bgAlpha];
+    }
     StrokeListDeserialize((__bridge CFDictionaryRef)(strokesDict), recordedStrokeList);
     StrokeListDetectBounds(recordedStrokeList);
 }

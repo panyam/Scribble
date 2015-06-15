@@ -56,6 +56,7 @@ typedef struct StrokeList {
     Stroke *currentStroke;
     CGFloat minX, minY, maxX, maxY;
 	CGFloat maxLineWidth;
+    CGFloat bgRed, bgGreen, bgBlue, bgAlpha;
 } StrokeList;
 
 extern StrokeList *StrokeListNew();
@@ -91,5 +92,10 @@ extern CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke);
  * Deserialize a stroke point from a dictionary of its attribute values.
  */
 extern CFErrorRef StrokePointDeserialize(CFDictionaryRef dict, StrokePoint *point);
+
+/**
+ * Deserialize a color from components.
+ */
+extern CFErrorRef ColorDeserialize(CFArrayRef components, CGFloat *red, CGFloat *green, CGFloat *blue, CGFloat *alpha);
 
 #endif

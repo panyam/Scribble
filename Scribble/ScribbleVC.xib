@@ -8,11 +8,12 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ScribbleVC">
             <connections>
                 <outlet property="acceptButton" destination="Y7b-V8-JTV" id="2by-UB-9Fh"/>
+                <outlet property="bgColorPickerButton" destination="J4R-J5-kG8" id="fN7-Qh-kqp"/>
                 <outlet property="cancelButton" destination="Pdg-v7-oug" id="zAX-S0-NYr"/>
                 <outlet property="canvasView" destination="Egc-nX-9RE" id="eWh-V7-FVg"/>
                 <outlet property="clearButton" destination="eUX-z3-3Yg" id="j5c-Nx-nAK"/>
-                <outlet property="colorPickerButton" destination="O7R-en-peo" id="JSX-Sg-WXz"/>
                 <outlet property="colorPickerView" destination="IxN-07-oe6" id="RjA-DT-bM3"/>
+                <outlet property="lineColorPickerButton" destination="O7R-en-peo" id="Yvj-KA-IEO"/>
                 <outlet property="pasteButton" destination="XeG-7I-Hk8" id="ly0-NW-IUf"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
@@ -30,7 +31,7 @@
                     </connections>
                 </view>
                 <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IxN-07-oe6" customClass="HRColorPickerView">
-                    <rect key="frame" x="8" y="20" width="444" height="524"/>
+                    <rect key="frame" x="0.0" y="20" width="460" height="524"/>
                     <color key="backgroundColor" red="0.68296397109999996" green="0.90263463909999997" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nOl-hi-cMf" userLabel="Tools View">
@@ -49,6 +50,11 @@
                             <state key="normal">
                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                             </state>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="layer.borderWidth">
+                                    <integer key="value" value="1"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
                             <variation key="default">
                                 <mask key="constraints">
                                     <exclude reference="9q5-No-zHW"/>
@@ -56,7 +62,7 @@
                                 </mask>
                             </variation>
                             <connections>
-                                <action selector="colorPickerButtonClicked" destination="-1" eventType="touchUpInside" id="XuB-8Z-Gft"/>
+                                <action selector="colorPickerButtonClicked:" destination="-1" eventType="touchUpInside" id="ibe-mL-Jbl"/>
                             </connections>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eUX-z3-3Yg" userLabel="Clear Button">
@@ -78,6 +84,34 @@
                                 <action selector="pasteButtonClicked" destination="-1" eventType="touchUpInside" id="RJs-xf-jxe"/>
                             </connections>
                         </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J4R-J5-kG8" userLabel="Color Picker Button">
+                            <rect key="frame" x="358" y="5" width="30" height="30"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="30" id="OgX-iT-Asw"/>
+                                <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="50" id="WXN-mz-X5m"/>
+                                <constraint firstAttribute="height" constant="30" id="kVq-Kr-rNe"/>
+                                <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="50" id="tdV-2Y-PTI"/>
+                            </constraints>
+                            <color key="tintColor" red="0.0071543817930000003" green="0.0071543817930000003" blue="0.0071543817930000003" alpha="1" colorSpace="calibratedRGB"/>
+                            <state key="normal">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="layer.borderWidth">
+                                    <integer key="value" value="1"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                            <variation key="default">
+                                <mask key="constraints">
+                                    <exclude reference="WXN-mz-X5m"/>
+                                    <exclude reference="tdV-2Y-PTI"/>
+                                </mask>
+                            </variation>
+                            <connections>
+                                <action selector="colorPickerButtonClicked:" destination="-1" eventType="touchUpInside" id="2L6-kA-8on"/>
+                            </connections>
+                        </button>
                     </subviews>
                     <color key="backgroundColor" red="1" green="1" blue="0.75756665209790208" alpha="1" colorSpace="calibratedRGB"/>
                     <constraints>
@@ -86,9 +120,12 @@
                         <constraint firstAttribute="centerY" secondItem="eUX-z3-3Yg" secondAttribute="centerY" id="EVQ-jB-uiX"/>
                         <constraint firstItem="eUX-z3-3Yg" firstAttribute="leading" secondItem="nOl-hi-cMf" secondAttribute="leading" constant="8" id="Kcn-3t-IuG"/>
                         <constraint firstAttribute="height" constant="40" id="U8L-uI-l6d"/>
+                        <constraint firstItem="O7R-en-peo" firstAttribute="top" secondItem="J4R-J5-kG8" secondAttribute="top" id="VB6-DO-tR0"/>
                         <constraint firstAttribute="bottom" secondItem="O7R-en-peo" secondAttribute="bottom" id="VtN-Mu-zcs"/>
                         <constraint firstAttribute="centerY" secondItem="XeG-7I-Hk8" secondAttribute="centerY" id="Wgq-kt-QW0"/>
+                        <constraint firstItem="O7R-en-peo" firstAttribute="bottom" secondItem="J4R-J5-kG8" secondAttribute="bottom" id="j8o-WT-dnf"/>
                         <constraint firstItem="XeG-7I-Hk8" firstAttribute="leading" secondItem="eUX-z3-3Yg" secondAttribute="trailing" constant="16" id="jem-NY-8wv"/>
+                        <constraint firstItem="O7R-en-peo" firstAttribute="leading" secondItem="J4R-J5-kG8" secondAttribute="trailing" constant="20" id="md2-GB-oGN"/>
                         <constraint firstAttribute="centerY" secondItem="O7R-en-peo" secondAttribute="centerY" id="xLj-7G-tGl"/>
                     </constraints>
                     <variation key="default">
@@ -109,12 +146,12 @@
                 <constraint firstItem="nOl-hi-cMf" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="EIr-gg-sdG"/>
                 <constraint firstItem="nOl-hi-cMf" firstAttribute="top" secondItem="Egc-nX-9RE" secondAttribute="bottom" constant="-2" id="IkL-Ud-JcI"/>
                 <constraint firstAttribute="trailing" secondItem="Egc-nX-9RE" secondAttribute="trailing" id="MlV-YF-Ez5"/>
-                <constraint firstItem="IxN-07-oe6" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="Odd-la-HPz"/>
+                <constraint firstItem="IxN-07-oe6" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="Odd-la-HPz"/>
                 <constraint firstItem="nOl-hi-cMf" firstAttribute="width" secondItem="IxN-07-oe6" secondAttribute="width" multiplier="0.5" id="UGv-hO-x2m"/>
                 <constraint firstItem="Egc-nX-9RE" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="XGm-if-YSE"/>
                 <constraint firstAttribute="bottom" secondItem="nOl-hi-cMf" secondAttribute="bottom" constant="8" id="bwI-Ka-e8p"/>
                 <constraint firstItem="Egc-nX-9RE" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="nwf-Dk-jR9"/>
-                <constraint firstAttribute="trailing" secondItem="IxN-07-oe6" secondAttribute="trailing" constant="8" id="ub8-0e-Rsx"/>
+                <constraint firstAttribute="trailing" secondItem="IxN-07-oe6" secondAttribute="trailing" id="ub8-0e-Rsx"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <variation key="default">

@@ -21,6 +21,7 @@ CFStringRef Key##key()                                                          
 
 KEY_MAKER(LineWidth)
 KEY_MAKER(LineColor)
+KEY_MAKER(BGColor)
 KEY_MAKER(StartNew)
 KEY_MAKER(X)
 KEY_MAKER(Y)
@@ -408,7 +409,19 @@ void StrokeListSerialize(StrokeList *strokeList, CFMutableDataRef dataRef)
     CFDataAppendFloat(dataRef, strokeList->maxY, 2);
     CFDataAppendString(dataRef, ",\"MaxLineWidth\":");
     CFDataAppendFloat(dataRef, strokeList->maxLineWidth, 2);
-	
+
+    // write out bg color
+    CFDataAppendString(dataRef, ",\"BGColor\":");
+    CFDataAppendString(dataRef, "[");
+    CFDataAppendFloat(dataRef, strokeList->bgRed, 3);
+    CFDataAppendString(dataRef, ",");
+    CFDataAppendFloat(dataRef, strokeList->bgGreen, 3);
+    CFDataAppendString(dataRef, ",");
+    CFDataAppendFloat(dataRef, strokeList->bgBlue, 3);
+    CFDataAppendString(dataRef, ",");
+    CFDataAppendFloat(dataRef, strokeList->bgAlpha, 3);
+    CFDataAppendString(dataRef, "]");
+
 	// Finish
     CFDataAppendString(dataRef, "}");
 }
@@ -482,6 +495,8 @@ CFErrorRef StrokeListDeserialize(CFDictionaryRef dict, StrokeList *strokeList)
             CFDictionaryRef strokeDict = CFArrayGetValueAtIndex(strokesObj, i);
             StrokeDeserialize(strokeDict, strokeList->currentStroke);
         }
+        CFArrayRef bgColorObj = CFDictionaryGetValue(dict, KeyBGColor());
+        ColorDeserialize(bgColorObj, &strokeList->bgRed, &strokeList->bgGreen, &strokeList->bgBlue, &strokeList->bgAlpha);
     }
     return NULL;
 }
@@ -494,7 +509,6 @@ CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke)
     if (dict != NULL)
     {
         CFNumberRef lineWidthObj = CFDictionaryGetValue(dict, KeyLineWidth());
-        CFArrayRef lineColorObj = CFDictionaryGetValue(dict, KeyLineColor());
         CFNumberRef minXObj = CFDictionaryGetValue(dict, KeyMinX());
         CFNumberRef minYObj = CFDictionaryGetValue(dict, KeyMinY());
         CFNumberRef maxXObj = CFDictionaryGetValue(dict, KeyMaxX());
@@ -507,27 +521,10 @@ CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke)
 		stroke->maxX = CFNumberToFloat(maxXObj, 0);
 		stroke->maxY = CFNumberToFloat(maxYObj, 0);
 
-        CFIndex numColors = CFArrayGetCount(lineColorObj);
-		if (numColors == 2)
-		{
-			CFNumberRef color = CFArrayGetValueAtIndex(lineColorObj, 0);
-			CFNumberRef alpha = CFArrayGetValueAtIndex(lineColorObj, 1);
-			CGFloat colorValue = CFNumberToFloat(color, 0);
-			CGFloat alphaValue = CFNumberToFloat(alpha, 1);
-            StrokeSetLineColor(stroke, colorValue, colorValue, colorValue, alphaValue);
-		} else if (numColors == 4)
-		{
-			CFNumberRef red = CFArrayGetValueAtIndex(lineColorObj, 0);
-			CFNumberRef green = CFArrayGetValueAtIndex(lineColorObj, 1);
-			CFNumberRef blue = CFArrayGetValueAtIndex(lineColorObj, 2);
-			CFNumberRef alpha = CFArrayGetValueAtIndex(lineColorObj, 3);
-
-			CGFloat redValue = CFNumberToFloat(red, 0);
-			CGFloat greenValue = CFNumberToFloat(green, 0);
-			CGFloat blueValue = CFNumberToFloat(blue, 0);
-			CGFloat alphaValue = CFNumberToFloat(alpha, 1);
-            StrokeSetLineColor(stroke, redValue, greenValue, blueValue, alphaValue);
-		}
+        CFArrayRef lineColorObj = CFDictionaryGetValue(dict, KeyLineColor());
+        CGFloat redValue, greenValue, blueValue, alphaValue;
+        ColorDeserialize(lineColorObj, &redValue, &greenValue, &blueValue, &alphaValue);
+        StrokeSetLineColor(stroke, redValue, greenValue, blueValue, alphaValue);
 
         CFIndex numPoints = CFArrayGetCount(pointsObj);
         for (int i = 0;i < numPoints;i++)
@@ -562,4 +559,28 @@ CFErrorRef StrokePointDeserialize(CFDictionaryRef dict, StrokePoint *point)
 		}
     }
     return NULL;
+}
+
+CFErrorRef ColorDeserialize(CFArrayRef components, CGFloat *red, CGFloat *green, CGFloat *blue, CGFloat *alpha)
+{
+    CFIndex numColors = CFArrayGetCount(components);
+    if (numColors == 2)
+    {
+        CFNumberRef color = CFArrayGetValueAtIndex(components, 0);
+        CFNumberRef alphaObj = CFArrayGetValueAtIndex(components, 1);
+        *red = *green = *blue = CFNumberToFloat(color, 0);
+        *alpha = CFNumberToFloat(alphaObj, 1);
+    } else if (numColors == 4)
+    {
+        CFNumberRef redObj = CFArrayGetValueAtIndex(components, 0);
+        CFNumberRef greenObj = CFArrayGetValueAtIndex(components, 1);
+        CFNumberRef blueObj = CFArrayGetValueAtIndex(components, 2);
+        CFNumberRef alphaObj = CFArrayGetValueAtIndex(components, 3);
+
+        *red = CFNumberToFloat(redObj, 0);
+        *green = CFNumberToFloat(greenObj, 0);
+        *blue = CFNumberToFloat(blueObj, 0);
+        *alpha = CFNumberToFloat(alphaObj, 1);
+    }
+    return nil;
 }
