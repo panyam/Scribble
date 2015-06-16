@@ -240,6 +240,7 @@ StrokeList *StrokeListNew()
 {
     StrokeList *out = calloc(1, sizeof(StrokeList));
     out->strokes = LinkedListNew();
+    out->bgRed = out->bgGreen = out->bgBlue = out->bgAlpha = 1.0;
     return out;
 }
 
