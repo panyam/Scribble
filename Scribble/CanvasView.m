@@ -167,6 +167,10 @@
     }
     StrokeListDeserialize((__bridge CFDictionaryRef)(strokesDict), recordedStrokeList);
     StrokeListDetectBounds(recordedStrokeList);
+    self.backgroundColor = [UIColor colorWithRed:recordedStrokeList->bgRed
+                                           green:recordedStrokeList->bgGreen
+                                            blue:recordedStrokeList->bgBlue
+                                           alpha:recordedStrokeList->bgAlpha];
 }
 
 #pragma Stroke Animations
