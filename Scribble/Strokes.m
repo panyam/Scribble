@@ -569,24 +569,27 @@ CFErrorRef StrokePointDeserialize(CFDictionaryRef dict, StrokePoint *point)
 
 CFErrorRef ColorDeserialize(CFArrayRef components, CGFloat *red, CGFloat *green, CGFloat *blue, CGFloat *alpha)
 {
-    CFIndex numColors = CFArrayGetCount(components);
-    if (numColors == 2)
-    {
-        CFNumberRef color = CFArrayGetValueAtIndex(components, 0);
-        CFNumberRef alphaObj = CFArrayGetValueAtIndex(components, 1);
-        *red = *green = *blue = CFNumberToFloat(color, 0);
-        *alpha = CFNumberToFloat(alphaObj, 1);
-    } else if (numColors == 4)
-    {
-        CFNumberRef redObj = CFArrayGetValueAtIndex(components, 0);
-        CFNumberRef greenObj = CFArrayGetValueAtIndex(components, 1);
-        CFNumberRef blueObj = CFArrayGetValueAtIndex(components, 2);
-        CFNumberRef alphaObj = CFArrayGetValueAtIndex(components, 3);
+	if (components != NULL)
+	{
+		CFIndex numColors = CFArrayGetCount(components);
+		if (numColors == 2)
+		{
+			CFNumberRef color = CFArrayGetValueAtIndex(components, 0);
+			CFNumberRef alphaObj = CFArrayGetValueAtIndex(components, 1);
+			*red = *green = *blue = CFNumberToFloat(color, 0);
+			*alpha = CFNumberToFloat(alphaObj, 1);
+		} else if (numColors == 4)
+		{
+			CFNumberRef redObj = CFArrayGetValueAtIndex(components, 0);
+			CFNumberRef greenObj = CFArrayGetValueAtIndex(components, 1);
+			CFNumberRef blueObj = CFArrayGetValueAtIndex(components, 2);
+			CFNumberRef alphaObj = CFArrayGetValueAtIndex(components, 3);
 
-        *red = CFNumberToFloat(redObj, 0);
-        *green = CFNumberToFloat(greenObj, 0);
-        *blue = CFNumberToFloat(blueObj, 0);
-        *alpha = CFNumberToFloat(alphaObj, 1);
-    }
+			*red = CFNumberToFloat(redObj, 0);
+			*green = CFNumberToFloat(greenObj, 0);
+			*blue = CFNumberToFloat(blueObj, 0);
+			*alpha = CFNumberToFloat(alphaObj, 1);
+		}
+	}
     return nil;
 }
