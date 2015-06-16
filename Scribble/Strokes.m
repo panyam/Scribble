@@ -496,7 +496,13 @@ CFErrorRef StrokeListDeserialize(CFDictionaryRef dict, StrokeList *strokeList)
             StrokeDeserialize(strokeDict, strokeList->currentStroke);
         }
         CFArrayRef bgColorObj = CFDictionaryGetValue(dict, KeyBGColor());
-        ColorDeserialize(bgColorObj, &strokeList->bgRed, &strokeList->bgGreen, &strokeList->bgBlue, &strokeList->bgAlpha);
+        if (bgColorObj)
+        {
+            ColorDeserialize(bgColorObj, &strokeList->bgRed, &strokeList->bgGreen,
+                             &strokeList->bgBlue, &strokeList->bgAlpha);
+        } else {
+            strokeList->bgRed = strokeList->bgGreen = strokeList->bgBlue = strokeList->bgAlpha = 1.0;
+        }
     }
     return NULL;
 }
