@@ -8,7 +8,6 @@ inhibit_all_warnings!
 
 target 'Scribble' do
 	pod 'LinkedList'
-	# pod 'Color-Picker-for-iOS'
 	pod 'NeoveraColorPicker', :git => "https://github.com/kartech/colorpicker"
 end
 
