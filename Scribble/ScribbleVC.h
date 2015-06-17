@@ -6,8 +6,8 @@
 //  Copyright (c) 2015 osb. All rights reserved.
 //
 
+
 #import "CanvasView.h"
-#import <Color-Picker-for-iOS/HRColorPickerView.h>
 
 @protocol ScribbleVCDelegate;
 

@@ -325,9 +325,9 @@
     if (self.inPlaybackMode)
     {
         StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), self.playbackStrokeAlpha, self.translateBy);
-        StrokeListDraw(playbackStrokeList, UIGraphicsGetCurrentContext(), 1, self.translateBy);
+        StrokeListDraw(playbackStrokeList, UIGraphicsGetCurrentContext(), -1, self.translateBy);
     } else {
-        StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), 1, self.translateBy);
+        StrokeListDraw(recordedStrokeList, UIGraphicsGetCurrentContext(), -1, self.translateBy);
     }
 }
 

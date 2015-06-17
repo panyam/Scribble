@@ -12,7 +12,6 @@
                 <outlet property="cancelButton" destination="Pdg-v7-oug" id="zAX-S0-NYr"/>
                 <outlet property="canvasView" destination="Egc-nX-9RE" id="eWh-V7-FVg"/>
                 <outlet property="clearButton" destination="eUX-z3-3Yg" id="j5c-Nx-nAK"/>
-                <outlet property="colorPickerView" destination="IxN-07-oe6" id="RjA-DT-bM3"/>
                 <outlet property="lineColorPickerButton" destination="O7R-en-peo" id="Yvj-KA-IEO"/>
                 <outlet property="pasteButton" destination="XeG-7I-Hk8" id="ly0-NW-IUf"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
@@ -30,7 +29,7 @@
                         <outlet property="canvasDelegate" destination="-1" id="bQy-wo-WTB"/>
                     </connections>
                 </view>
-                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IxN-07-oe6" customClass="HRColorPickerView">
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IxN-07-oe6">
                     <rect key="frame" x="0.0" y="20" width="460" height="524"/>
                     <color key="backgroundColor" red="0.68296397109999996" green="0.90263463909999997" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                 </view>

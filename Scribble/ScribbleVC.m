@@ -7,14 +7,15 @@
 //
 
 #import "Scribble.h"
+#import <NeoveraColorPicker/NEOColorPickerViewController.h>
+#import <NeoveraColorPicker/NEOColorPickerHSLViewController.h>
 
-@interface ScribbleVC ()
+@interface ScribbleVC ()<NEOColorPickerViewControllerDelegate>
 
 @property (nonatomic) BOOL lineColorPickerSelected;
 @property (nonatomic, weak) IBOutlet UIButton *clearButton;
 @property (nonatomic, weak) IBOutlet UIButton *lineColorPickerButton;
 @property (nonatomic, weak) IBOutlet UIButton *bgColorPickerButton;
-@property (nonatomic, weak) IBOutlet HRColorPickerView *colorPickerView;
 @property (nonatomic, weak) IBOutlet NSLayoutConstraint *colorPickerLeftConstraint;
 @property (nonatomic, weak) IBOutlet NSLayoutConstraint *colorPickerTopConstraint;
 
@@ -28,21 +29,17 @@
     self.title = @"Scribble!";
     self.navigationItem.leftBarButtonItem = self.cancelButton;
     self.navigationItem.rightBarButtonItem = self.acceptButton;
-    [self.colorPickerView addTarget:self
-                             action:@selector(colorPickerViewValueChanged:)
-                   forControlEvents:UIControlEventValueChanged];
-    [self.colorPickerView setColor:[UIColor redColor]];
 }
 
 -(IBAction)colorPickerButtonClicked:(id)sender
 {
     self.lineColorPickerSelected = (sender == self.lineColorPickerButton);
-
-    self.colorPickerView.hidden = !self.colorPickerView.hidden;
-    self.acceptButton.enabled = self.colorPickerView.hidden;
-    self.cancelButton.enabled = self.colorPickerView.hidden;
-    self.clearButton.enabled = self.colorPickerView.hidden;
-    self.pasteButton.enabled = self.colorPickerView.hidden;
+    NEOColorPickerHSLViewController *controller = [[NEOColorPickerHSLViewController alloc] init];
+    controller.delegate = self;
+    controller.selectedColor = ((UIButton *)sender).backgroundColor;
+    controller.title = sender == self.lineColorPickerButton ? @"Line Color": @"Background Color";
+    UINavigationController* navVC = [[UINavigationController alloc] initWithRootViewController:controller];
+    [self presentViewController:navVC animated:YES completion:nil];
 }
 
 -(IBAction)barButtonItemClicked:(id)sender
@@ -72,20 +69,6 @@
     NSLog(@"Paste not yet implemented");
 }
 
--(IBAction)colorPickerViewValueChanged:(id)sender
-{
-    if (self.lineColorPickerSelected)
-    {
-        self.lineColorPickerButton.backgroundColor = self.colorPickerView.color;
-        [self.canvasView startNewStrokeWithColor:self.colorPickerView.color withWidth:-1];
-    }
-    else
-    {
-        self.bgColorPickerButton.backgroundColor = self.colorPickerView.color;
-        self.canvasView.backgroundColor = self.colorPickerView.color;
-    }
-}
-
 #pragma CanvasViewDelegate methods
 
 -(void)canvasView:(CanvasView *)canvasView startedAnimationLoop:(NSInteger)loopIndex resumed:(BOOL)resumed
@@ -102,6 +85,24 @@
     self.pasteButton.enabled = YES;
     self.lineColorPickerButton.enabled = YES;
     self.bgColorPickerButton.enabled = YES;
+}
+
+- (void) colorPickerViewController:(NEOColorPickerBaseViewController *)controller didSelectColor:(UIColor *)color {
+    if (self.lineColorPickerSelected)
+    {
+        self.lineColorPickerButton.backgroundColor = color;
+        [self.canvasView startNewStrokeWithColor:color withWidth:-1];
+    }
+    else
+    {
+        self.bgColorPickerButton.backgroundColor = color;
+        self.canvasView.backgroundColor = color;
+    }
+    [controller dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void) colorPickerViewControllerDidCancel:(NEOColorPickerBaseViewController *)controller {
+    [controller dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end
