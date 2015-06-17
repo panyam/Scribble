@@ -7,8 +7,8 @@
 //
 
 #import "Scribble.h"
-#import <NeoveraColorPicker/NEOColorPickerViewController.h>
-#import <NeoveraColorPicker/NEOColorPickerHSLViewController.h>
+#import <AlphaColorPicker/NEOColorPickerViewController.h>
+#import <AlphaColorPicker/NEOColorPickerHSLViewController.h>
 
 @interface ScribbleVC ()<NEOColorPickerViewControllerDelegate>
 
@@ -34,6 +34,7 @@
 -(IBAction)colorPickerButtonClicked:(id)sender
 {
     self.lineColorPickerSelected = (sender == self.lineColorPickerButton);
+
     NEOColorPickerHSLViewController *controller = [[NEOColorPickerHSLViewController alloc] init];
     controller.delegate = self;
     controller.selectedColor = ((UIButton *)sender).backgroundColor;

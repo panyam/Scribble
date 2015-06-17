@@ -8,6 +8,6 @@ inhibit_all_warnings!
 
 target 'Scribble' do
 	pod 'LinkedList'
-	pod 'NeoveraColorPicker', :git => "https://github.com/kartech/colorpicker"
+	pod 'AlphaColorPicker'
 end
 
