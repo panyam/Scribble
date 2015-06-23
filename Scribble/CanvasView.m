@@ -14,7 +14,7 @@
 
 @property (nonatomic, strong) UIColor *currLineColor;
 @property (nonatomic) CGFloat currLineWidth;
-@property (nonatomic, strong) NSTimer *playerTimer;
+@property (nonatomic, strong) CADisplayLink *displayLink;
 @property (nonatomic) NSInteger currAnimationLoop;
 @property (nonatomic) BOOL inPlaybackMode;                // Whether we are in playback mode
 @property (nonatomic) BOOL playbackPaused;                // If in playback mode, whether we are paused
@@ -180,9 +180,20 @@
 	[self playButtonClicked:self.playButton];
 }
 
+-(void)startAnimation
+{
+    self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(strokeAnimationFrame)];
+    [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+}
+
+-(void)cancelAnimation
+{
+    [self.displayLink removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    self.displayLink = nil;
+}
+
 -(void)startPlaying:(BOOL)restart {
-    [self.playerTimer invalidate];
-    self.playerTimer = nil;
+    [self cancelAnimation];
     if (restart)
     {
         self.currAnimationLoop = 0;
@@ -190,16 +201,11 @@
     }
     [self.playButton setTitle:@"Stop" forState:UIControlStateNormal];
     self.inPlaybackMode = YES;
-    self.playerTimer = [NSTimer scheduledTimerWithTimeInterval:self.delayBetweenAnimationFrames
-                                                        target:self
-                                                      selector:@selector(strokeAnimationFrame)
-                                                      userInfo:nil
-                                                       repeats:YES];
+    [self startAnimation];
 }
 
 -(void)stopPlaying:(BOOL)finish {
-    [self.playerTimer invalidate];
-    self.playerTimer = nil;
+    [self cancelAnimation];
     if (finish)
     {
         self.inPlaybackMode = NO;
@@ -216,8 +222,7 @@
     if (![self advanceStrokeFrame])
     {
         // loop has finished
-        [self.playerTimer invalidate];
-        self.playerTimer = nil;
+        [self cancelAnimation];
         self.currAnimationLoop++;
 
         if (self.animationCount < 0 || self.currAnimationLoop < self.animationCount)
