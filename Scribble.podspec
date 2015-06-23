@@ -1,11 +1,4 @@
 Pod::Spec.new do |s|
-  # ―――  Spec Metadata  ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  #
-  #  These will help people to find your library, and whilst it
-  #  can feel like a chore to fill in it's definitely to your advantage. The
-  #  summary should be tweet-length, and the description more in depth.
-  #
-
   s.name         = "Scribble"
   s.version      = "0.0.4"
   s.summary      = "A simple app for recording and playing back touches on a view"
@@ -92,5 +85,5 @@ Pod::Spec.new do |s|
 
   # s.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
   s.dependency "LinkedList"
-  s.dependency "AlphaColorPicker"
+  s.dependency "Color-Picker-for-iOS"
 end

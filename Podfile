@@ -8,6 +8,6 @@ inhibit_all_warnings!
 
 target 'Scribble' do
 	pod 'LinkedList'
-	pod 'AlphaColorPicker'
+	pod 'Color-Picker-for-iOS'
 end
 
