@@ -14,6 +14,7 @@
 
 @property (nonatomic, strong) UIColor *currLineColor;
 @property (nonatomic) CGFloat currLineWidth;
+@property (nonatomic) int speedFactor;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 @property (nonatomic) NSInteger currAnimationLoop;
 @property (nonatomic) BOOL inPlaybackMode;                // Whether we are in playback mode
@@ -243,54 +244,71 @@
 
 -(BOOL)advanceStrokeFrame
 {
-    if (recordedStrokeList == NULL)
-        return NO;
-
-    if (strokeIterator == NULL)
-        strokeIterator = LinkedListIteratorNew(recordedStrokeList->strokes);
-    if (strokeIterator == NULL)
-        return NO;
-
-    Stroke *currStroke = (Stroke *)LinkedListIteratorValue(strokeIterator);
-    if (pointIterator == NULL)
-        pointIterator = LinkedListIteratorNew(currStroke->points);
-    if (pointIterator == NULL)
-        return NO;
-
-    if (playbackStrokeList == NULL)
+    if (self.speedFactor <= 0)
+        self.speedFactor = 5;
+    BOOL hasMore = YES;
+    for (int i = 0;i < self.speedFactor;i++)
     {
-        playbackStrokeList = StrokeListNew();
-        StrokeListStartNewStroke(playbackStrokeList, currStroke->lineWidth,
-                                 currStroke->red, currStroke->green, currStroke->blue, currStroke->alpha);
-    }
-
-    // add this point to the playback strokes
-    StrokePoint *currPoint = (StrokePoint *)LinkedListIteratorValue(pointIterator);
-    StrokeAddPoint(playbackStrokeList->currentStroke, currPoint->location, currPoint->timestamp, currPoint->startNewSubpath);
-
-    // now go forward
-    if (!LinkedListIteratorForward(pointIterator))
-    {
-        if (!LinkedListIteratorForward(strokeIterator))
+        if (recordedStrokeList == NULL)
         {
-            [self clearPlayback];
-            // no more points AND no more strokes so quit
-            return NO;
-        } else {
-            // next iteration will set the pointIterator again but
-            // just start a new stroke
-            Stroke *currStroke = (Stroke *)LinkedListIteratorValue(strokeIterator);
+            hasMore = NO;
+            goto finished;
+        }
+
+        if (strokeIterator == NULL)
+            strokeIterator = LinkedListIteratorNew(recordedStrokeList->strokes);
+        if (strokeIterator == NULL)
+        {
+            hasMore = NO;
+            goto finished;
+        }
+
+        Stroke *currStroke = (Stroke *)LinkedListIteratorValue(strokeIterator);
+        if (pointIterator == NULL)
+            pointIterator = LinkedListIteratorNew(currStroke->points);
+        if (pointIterator == NULL)
+        {
+            hasMore = NO;
+            goto finished;
+        }
+
+        if (playbackStrokeList == NULL)
+        {
+            playbackStrokeList = StrokeListNew();
             StrokeListStartNewStroke(playbackStrokeList, currStroke->lineWidth,
                                      currStroke->red, currStroke->green, currStroke->blue, currStroke->alpha);
-            LinkedListIteratorRelease(pointIterator);
-            pointIterator = NULL;
         }
-    } else {
-        // all good
+
+        // add this point to the playback strokes
+        StrokePoint *currPoint = (StrokePoint *)LinkedListIteratorValue(pointIterator);
+        StrokeAddPoint(playbackStrokeList->currentStroke, currPoint->location, currPoint->timestamp, currPoint->startNewSubpath);
+
+        // now go forward
+        if (!LinkedListIteratorForward(pointIterator))
+        {
+            if (!LinkedListIteratorForward(strokeIterator))
+            {
+                [self clearPlayback];
+                // no more points AND no more strokes so quit
+                hasMore = NO;
+                goto finished;
+            } else {
+                // next iteration will set the pointIterator again but
+                // just start a new stroke
+                Stroke *currStroke = (Stroke *)LinkedListIteratorValue(strokeIterator);
+                StrokeListStartNewStroke(playbackStrokeList, currStroke->lineWidth,
+                                         currStroke->red, currStroke->green, currStroke->blue, currStroke->alpha);
+                LinkedListIteratorRelease(pointIterator);
+                pointIterator = NULL;
+            }
+        } else {
+            // all good
+        }
     }
 
+finished:
     [self setNeedsDisplay];
-    return YES;
+    return hasMore;
 }
 
 #pragma mark Touch event handlers
