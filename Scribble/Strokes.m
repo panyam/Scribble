@@ -244,6 +244,16 @@ StrokeList *StrokeListNew()
     return out;
 }
 
+NSInteger StrokeListSize(StrokeList *strokes)
+{
+    __block NSInteger count = 0;
+    LinkedListIterate(strokes->strokes, ^(void *obj, NSUInteger idx, BOOL *stop) {
+        Stroke *stroke = obj;
+        count += LinkedListCount(stroke->points);
+    });
+    return count;
+}
+
 void StrokeListClear(StrokeList *sl)
 {
     if (sl)

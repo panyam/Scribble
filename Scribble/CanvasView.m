@@ -200,6 +200,9 @@
         self.currAnimationLoop = 0;
         [self clearPlayback];
     }
+    NSInteger numPoints = StrokeListSize(recordedStrokeList);
+    self.speedFactor = numPoints / 150; // take no more than 5 seconds at 30FPS
+    NSLog(@"Playing Animation, NumPoints: %ld, Loop: %ld", numPoints, self.currAnimationLoop);
     [self.playButton setTitle:@"Stop" forState:UIControlStateNormal];
     self.inPlaybackMode = YES;
     [self startAnimation];
@@ -214,6 +217,7 @@
     } else {
         self.playbackPaused = YES;
     }
+    NSLog(@"Stopping Animation, Loop: %ld", self.currAnimationLoop);
     [self.playButton setTitle:@"Play" forState:UIControlStateNormal];
     [self setNeedsDisplay];
 }

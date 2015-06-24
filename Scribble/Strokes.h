@@ -60,6 +60,7 @@ typedef struct StrokeList {
 } StrokeList;
 
 extern StrokeList *StrokeListNew();
+extern NSInteger StrokeListSize(StrokeList *strokes);
 extern void StrokeListClear(StrokeList *strokes);
 extern void StrokeListRelease(StrokeList *strokes);
 extern void StrokeListStartNewStroke(StrokeList *strokeList, CGFloat lineWidth,
