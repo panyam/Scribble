@@ -249,7 +249,7 @@
 -(BOOL)advanceStrokeFrame
 {
     if (self.speedFactor <= 0)
-        self.speedFactor = 5;
+        self.speedFactor = 1;
     BOOL hasMore = YES;
     for (int i = 0;i < self.speedFactor;i++)
     {
