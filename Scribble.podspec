@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Scribble"
-  s.version      = "0.0.4"
+  s.version      = "0.0.5"
   s.summary      = "A simple app for recording and playing back touches on a view"
 
   s.description  = <<-DESC
@@ -29,7 +29,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/panyam/Scribble.git", :tag=> "v0.0.4" }
+  s.source       = { :git => "https://github.com/panyam/Scribble.git", :tag=> "v0.0.5" }
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
