@@ -498,22 +498,24 @@ CFErrorRef StrokeListDeserialize(CFDictionaryRef dict, StrokeList *strokeList)
     if (dict != NULL)
     {
         CFArrayRef strokesObj = CFDictionaryGetValue(dict, KeyStrokes());
-        CFIndex count = CFArrayGetCount(strokesObj);
-        for (int i = 0;i < count;i++)
-        {
-            StrokeListStartNewStroke(strokeList, 0, 1, 1, 1, 1);
-
-            CFDictionaryRef strokeDict = CFArrayGetValueAtIndex(strokesObj, i);
-            StrokeDeserialize(strokeDict, strokeList->currentStroke);
-        }
-        CFArrayRef bgColorObj = CFDictionaryGetValue(dict, KeyBGColor());
-        if (bgColorObj)
-        {
-            ColorDeserialize(bgColorObj, &strokeList->bgRed, &strokeList->bgGreen,
-                             &strokeList->bgBlue, &strokeList->bgAlpha);
-        } else {
-            strokeList->bgRed = strokeList->bgGreen = strokeList->bgBlue = strokeList->bgAlpha = 1.0;
-        }
+		if (strokesObj)
+		{
+        	CFIndex count = CFArrayGetCount(strokesObj);
+        	for (int i = 0;i < count;i++)
+        	{
+            	StrokeListStartNewStroke(strokeList, 0, 1, 1, 1, 1);
+            	CFDictionaryRef strokeDict = CFArrayGetValueAtIndex(strokesObj, i);
+            	StrokeDeserialize(strokeDict, strokeList->currentStroke);
+        	}
+        	CFArrayRef bgColorObj = CFDictionaryGetValue(dict, KeyBGColor());
+        	if (bgColorObj)
+        	{
+            	ColorDeserialize(bgColorObj, &strokeList->bgRed, &strokeList->bgGreen,
+                             	&strokeList->bgBlue, &strokeList->bgAlpha);
+        	} else {
+            	strokeList->bgRed = strokeList->bgGreen = strokeList->bgBlue = strokeList->bgAlpha = 1.0;
+        	}
+		}
     }
     return NULL;
 }
@@ -543,7 +545,7 @@ CFErrorRef StrokeDeserialize(CFDictionaryRef dict, Stroke *stroke)
         ColorDeserialize(lineColorObj, &redValue, &greenValue, &blueValue, &alphaValue);
         StrokeSetLineColor(stroke, redValue, greenValue, blueValue, alphaValue);
 
-        CFIndex numPoints = CFArrayGetCount(pointsObj);
+		CFIndex numPoints = pointsObj ? CFArrayGetCount(pointsObj) : 0;
         for (int i = 0;i < numPoints;i++)
         {
             CFDictionaryRef pointDict = CFArrayGetValueAtIndex(pointsObj, i);
